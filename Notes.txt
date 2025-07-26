@@ -1,0 +1,383 @@
+Version 3.0 (EXP37.1) NON-OFFICIAL UPDATE: Submitted by user Tae Feckin Numpty
+
+!!! 
+If the merged mods versions do not work with Version 3.0 (EXP37),
+they won't work with this either. This is not a mod compatability update. 
+!!!
+
+Fix/changes:
+- Great Shinobi Owl moves #13/#14/#16 changes
+- Moves now have Mist Raven /  Raptor of the Mists effects.
+- Moves have had adjusted speed gradients to better show 
+  the player model initially fading/reappearing.
+- Moves DSAnimStudio events had an outdated fade window ([DS3]Fadeout),
+  this has been corrected to Elden Ring's SetOpacityKeyframe event. 
+  (This change is important for any one wanting to make their own
+   adjustments to the moves with DSAnimStudio, as it allows 
+   effects to play during the fadeout)
+
+- Updates for Vanilla, McKenyu, and Reforged described on mod page included.
+
+________________________________________________________________________________
+Version 3.0 (EXP37)
+
+Fix:
+- All custom animations are now working properly and can be seen from other players' perspectives.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP36)
+
+Changes:
+- Guard Stance will now work without the Custom Movesets feature.
+  However, the Guard Stance counter will trigger only one pre-defined attack.
+  You can enable the Custom Movesets feature and set different counter attack (or a combo of attacks).
+
+- The character will not perform a queued attack if knocked back after a successful deflect.
+- Disable Friendly-Target for all custom attacks.
+
+Fix:
+- Deflect counter will trigger a loop when two or more characters are standing too close.
+- Attribute build-up is not working with custom attacks.
+- Deflect sounds not working with DMN_DeflectAnimations_Mode = 0 or 1.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP35)
+
+New:
+- New gameplay mechanics: String Master's Judgement.
+  Use Lady Butterfly's left and right-hand attacks to attach the invisible strings to the field.  
+  When the strings turn red, use Special Attack 1 or 2 to activate String Master's Judgment, attacking all enemies in a large area.  
+  Options: DMN_StringMaster_Mode, DMN_StringMaster_MaxStacks, DMN_StringMaster_Timeout.
+
+- New gameplay mechanics: String Master's Air-Dashing.
+  Use certain Lady Butterfly's attacks/actions to jump into the air and stand on an invisible string.  
+  The character can dash forward/backward/left/right.  
+  Jump or guard to drop to the ground.
+
+- New gameplay mechanics: String Master's Air Retreat.
+  Press A while attacking to jump into the air and stand on an invisible string.
+
+- Option: DMN_DeflectPenalty_Duration.
+  The penalty duration during which the deflect window will shrink if you open it again (in milliseconds).
+
+- Option: DMN_DeflectPenalty_Percent.
+  The percentage (%) to shrink the deflect window during the penalty duration.
+
+- Option: DMN_DeflectPenalty_Amount.
+  The number of milliseconds to shrink the deflect window during the penalty duration.
+
+- Option: DMN_EvasionAction_Mode.
+  Replace the default rolling/backstep actions with custom animations (Sekiro/Bloodhound/Lady Butterfly).
+
+- Option: DMN_DeflectAnimation_Mode = 3.
+  Use Lady Butterfly's deflect animations.
+
+- New visual effect for deflect animations (similar to Sekiro's deflect effect).
+
+- Randomize and combine deflect sounds for all animations (requires Sound Effects).
+  The same deflect animations will play different sounds.
+
+Changes:
+- Pressing L1 while the deflect animation is playing will reopen the deflect window without interrupting the animation.
+  This is similar to Guard-Cancel, but it will not play the guard animation.  
+  Only applied after a successful deflect.
+
+- Guarding/evading/moving can be triggered at the 12th frame (instead of the 8th) due to the above changes.
+- Reduce the overall intensity of deflect effects.
+- Remove the golden sigil when defending against throw attacks.
+- Remove option DMN_DeflectCoordinateAttack_Chance.
+
+Fix:
+- Remove the delay between attacks when dual-wielding.
+- Dash/Roll/Backstep attacks are overridden by a normal attack if R1/R2 is pressed too early.
+- Double-Jump does not execute consistently.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP34)
+
+New:
+- Custom attacks (total 46).
+  Loaded Shuriken 1-3, Sabimaru 1-2, Sekiro 1-10, Isshin 1-31
+
+- Supports multiple lists of movesets.
+  Switch between the list of movesets by holding R1/R2 and pressing Y.
+  For example:
+    -- My default movesets.
+    {
+      NORMAL_COMBO =
+      {
+        {R1, R1, R1, R1, R1}
+        {...}
+      }
+    },
+
+    -- My martial arts movesets.
+    {
+      NORMAL_COMBO =
+      {
+        {R1, R1, R1, R1, R1}
+        {...}
+      }
+    }
+
+- New option: DMN_DeflectVFX_Mode.
+  Flashing light effect when deflecting an attack.
+
+Changes:
+- Shortcuts for various features.
+  Hold R1&R2 + press Y: Switch Custom Movesets modes.
+  Hold R1    + press Y: Next list of movesets (switch to first list of movesets upon reaching the last one).
+  Hold R2    + press Y: Previous list of movesets (switch to last list of movesets upon reaching the first one).
+  Hold L1    + press Y: Switch Guard-Cancel modes.
+  Hold B     + press Y: Switch Evasion-Cancel modes.
+  Hold A     + press Y: Switch Jump-Cancel modes.
+
+- Change all IDs in the regulation file to prevent conflicts with other mods.
+- Replace DMN_DeflectPerfect_VFX with DMN_DeflectVFX_Mode.
+- Holding L1 after taking a hit will not re-apply deflect status.
+- All custom attacks now have the Slash attribute and are in the Two-Hands attack category.
+- Hide weapon on left-hand for many custom animations.
+- Slow down the first 4 frames of all animations for a smooth transition between attacks.
+- Extends the duration of the trailing effect for all custom attacks.
+- Reduce the intensity of sound effects for most custom attacks.
+
+Fix:
+- When using custom attacks, the character's right hand doesn't move when using certain weapons.
+- The cooldown for the deflect window isn't working properly in non-refresh modes.
+- Evasion actions are not executed consistently if pressing the B button after the weapon's attack phase has ended.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP33)
+
+New:
+- Custom attacks: Genichiro Sword Attack 22, Genichiro Bow Attacks (total 12).
+
+Changes:
+- Disable all movement when Guard Stance is active.
+- Using Guard Stance with perfect timing will interrupt the enemy's attack.
+- The character can guard at frame 8th after a successful deflect.
+- DMN_ComboCooldown_Multiplier = 0 will disable the custom timing feature.
+- The cooldown for custom attacks and deflect animations has been adjusted to prevent early cancellation.
+- Allows perfect deflects during refresh duration.
+- Allows deflect status to be reapplied when holding L1.
+- DMN_DecreaseAttack_Level and DMN_DecreaseDefense_Level will affect damage from fire/lightning/holy.
+
+Fix:
+- Deflect animations and custom attack animations would stop playing when executed on uneven ground.
+- Rune gains on backstabs are not working consistently.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP32)
+
+New:
+- New implementation of custom movesets.
+  Define your own combo for normal attacks with R1/R2. For example: R1 R1 R1 R2/R1 R2 R1 R1.
+  Trigger pre-defined combo of attacks after guarding/deflecting.
+  Trigger pre-defined combo of attacks after rolling/backstepping/dashing or in stealth mode.
+
+- New gameplay mechanics: Guard Stance
+  Custom Movesets must be enabled to use this feature.
+  Hold L1 and press R1/R2 to enter a guard stance, counter with combo of attacks upon enemy hit.
+  Deflect status will be applied when the guard stance starts.
+  The first attack in the guard stance combo will have a deflect status applied.
+
+- New implementation of deflection logic.
+  Rework cooldown mechanics for smooth gameplay.
+
+- New implementation of deflect animation.
+  Enable smooth transition from deflect animations to attack/movement and vice versa.
+  Allow controlling the animation time.
+  Allow controlling the time to cancel the deflect animation.
+
+- New deflect animations (total 30).
+- New custom attacks (total 83).
+  Sekiro (26), Genichiro (21), Great Shinobi Owl (21), Lone Shadow (11), others (4).
+
+- New option: DMN_ComboCooldown_Multiplier
+  Multiplier for cooldown time between each attacks when using custom movesets.
+
+- New option: DMN_DeflectMovement_Multiplier
+  Multiplier of the time to wait before the character can cancel the deflect animation and move.
+
+- New option: DMN_AttackCounter_Mode = 2
+  Deflect and stop the current attack, interrupt enemy attack.
+
+- New option: DMN_AttackCounterRefresh_Mode
+  Allow refreshing deflect status when using attack counter.
+
+- New option: DMN_GuardCounter_Time
+  Time for guard counter window after a successful guard/deflect (in milliseconds).
+
+- New option: DMN_CloudChasing_Mode
+  Enable Torrent to jump infinitely in the air.
+
+Changes:
+- Rename "DMN_DeflectAttack_Mode" to "DMN_AttackCounter_Mode".
+- Remove DMN_CustomTiming_Mode option.
+- Disable SP regen for a short time after deflecting an attack.
+- The final deflect cooldown time will not include deflect window time.
+- Enemy will stop attacking until the character revived.
+- Change visual effect on auto-revive.
+- The rune gains buff will last for 1 second after the critical hit ends.
+- Add visual effects when using attack-counter.
+
+Fix:
+- DMN_DeflectExtends_Mode = 0 still enable deflecting status for torch action.
+- Input queue for jump-attack is cleared after using action-cancel.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP31)
+
+New:
+- DMN_DeflectDamage_Bonus: Bonus level to HP damage when triggering a perfect deflect.
+- DMN_DeflectPower_Bonus: Bonus level to poise damage when triggering a perfect deflect.
+- DMN_AutoRevive_Number: The number of times your character will be revived.
+  This does not apply to certain cases.
+
+Changes:
+- Guard-Cancel will not cancel roll/backstep/jump actions.
+- Replace "DMN_DeflectPerfect_Bonus" with "DMN_DeflectDamage_Bonus" and "DMN_DeflectPower_Bonus".
+
+Fix:
+- Attacking is very slow after a successful deflect when using custom movesets/timing.
+- When using custom movesets/timing with one-hand, dual attacks are used for dash/roll/backstep/stealth.
+- Deflect while attacking does not stop the attack in option 1.
+- When enable evasion-cancel, press B will trigger a roll on a ladder.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP30)
+
+New:
+- Sekiro's deflect sounds.
+  You need to use another fork of Mod Engine 2 for it to work.
+  Because the official one does not load the "sd" folder for modded sounds.
+  https://github.com/vswarte/ModEngine2/actions/runs/8931640677
+
+Changes:
+- Deflecting a medium attack can trigger a push-back animation.
+- The clashing effects now follow the character’s weapon.
+- Reduce the effective time of stat boosts on successful deflections to prevent over-stacking.
+- Getting hit while holding L1 will not automatically add the deflect status after the character regains position.
+
+Fix:
+- Protection against critical attacks is removed if L1 is not held.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP29)
+
+New:
+- DMN_EnemyRecoveryCooldown_Time: Enemy will lose the ability to recover poise HP for a short time, after a perfect deflect.
+- DMN_DeflectAnimation_Multiplier: Multiplier of the time to play deflect animation before returning to neutral state.
+
+Changes:
+- When casting magic and use action-cancel, a roll-cancel will be used.
+- Boost jump height by 3 levels in mode 3 (infinite) for easier exploration.
+- Replace DMN_DeflectAnimation_Time with DMN_DeflectAnimation_Multiplier.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP28.1)
+
+Changes:
+- Only add actions to queue after a short time.
+
+Fix:
+- When dual-wielding a whip and use second light attack, the attack from left hand is skipped.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP28)
+
+New:
+- DMN_DeflectPerfect_Time: Time to trigger a perfect deflect (in milliseconds).
+- DMN_DeflectPerfect_Bonus: Bonus level for various buffs when triggering a perfect deflect.
+- DMN_DeflectPerfect_VFX: Enable additional visual effects when triggering a perfect deflect.
+- DMN_DeflectPushback_Chance: Chance (%) to get pushed back when deflecting a light attack.
+- New trailing effect for weapons when triggering a deflect.
+
+Changes:
+- Guard counter no longer requires holding L1.
+- Base poise damage of deflect counter changed from 5 -> 3.
+
+Fix:
+- Disable Guard-Cancel will also remove the deflect ability.
+- A successful deflect still costs some stamina.
+- Guard counter not working properly with custom movesets/custom timing.
+- Stealth attack when dual-wielding is replaced with normal attack when using custom movesets/custom timing.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP27)
+
+New:
+- DMN_DeflectKnockback_Chance: Chance to get knocked back when deflecting a medium attack.
+- DMN_DeflectAnimation_Time: Time to play the deflect animation before returning to neutral state.
+- DMN_DeflectEvade_Mode: Evade critical attack when deflect status is active.
+- New sounds and camera effects for deflect animations.
+- Queue roll/backstep/jump for smooth experience.
+
+Changes:
+- DMN_JumpCancel_Mode = 3: Need to press A every time you want to jump in the air.
+
+Fix:
+- Deflection animation keep playing even when getting hit.
+- Deflect status not refreshed correctly.
+- Critical attacks not working properly.
+- Crouch attacks are overridden with normal attacks.
+- Cannot aim with ballista.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP26)
+
+New:
+ - DMN_DeflectAnimation_Mode = 2: Enable sekiro's deflect animations.
+ - DMN_DeflectVFX_Level: adjust the level of VFX effects when deflecting an attack.
+
+Changes:
+ - Better sound effects when deflecting an attack.
+ - Trigger Backstep-Cancel on button pressed in mode 1.
+
+Fix:
+- Invalid entries in regulation.bin after upgrading to V1.12.2.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP25.2)
+
+Changes:
+- DMN_ActionCancel_CostSP is now an additional SP cost when using action-cancel.
+- Add a short invisible status after using Jump-Cancel and Step-Cancel.
+
+Fix:
+- DMN_DeflectRepel_Mode = 0 not working as expected. 
+- Casting spell with L1 consumes an additional SP.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP25.1)
+
+Changes:
+- Set DMN_ActionCancel_Mode = 0 to use the default recovery behavior when being knocked down.
+
+Fix:
+- Evasion-Cancel always uses a back-step while using a recovery item.
+
+
+________________________________________________________________________________
+Version 3.0 (EXP25)
+
+New:
+- A successful deflect will not build up any debuff status.
+- Icon to indicate that deflect window is opened.
+
+Fix:
+- DMN_DeflectStatus_Mode = 3 not working as expected.
