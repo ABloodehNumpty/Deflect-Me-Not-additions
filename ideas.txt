@@ -1,0 +1,57 @@
+Crucible knight effects?
+
+Burial Watchdog (Starting at 642640)
+
+643171 Continuous Stream of Fire (some other interesting effects)
+
+Lordsworn knight (some fire in there)
+
+643700/1 Crackling/smoking fire
+
+Bloodthorn Exile/Thorn Sorcerer (Guilty)
+
+Dragon?
+
+Godrick the Grafted 647540 (Fire Wind Bullet)
+
+803230 Ember stream?
+
+806990 Orange spark cloud?
+
+401007 Highest intensity white weapon trail
+
+649805 (Add to the Owl slam move perhaps? Death Rite Bird feather slam)
+
+Lord of Frenzied Flame Ending effects (For the Numpty Isshin move?)
+
+
+
+IDs:
+647525 - Godrick Grafted / Fire lattice-like flare effect
+647552 - Godrick Grafted / Flame cloudy thing, give it a shot later
+647553 - Godrick Grafted / Flame spreads out, awesome, def use it later
+647554 - Godrick Grafted / Use this as a no-damage bullet to replace the shoulder bash fire
+647571 - Godrick Grafted / Flame ring spreads out around impact point
+647580 - Same as 647553?
+
+
+647561 - Godrick Grafted / Wind circle, use it around player
+647562 - Same, but with red lines in the wind circle (fired up)
+647590 - Godrick Grafted / Wind blade effect, could totally use it on attacks for alternate non-fire super version
+
+450354
+630528 - Niall effect, useful for Lazulite?
+
+621200 - Replace draw spark effects with this, Malenia sparks
+
+Sakura Dance effects
+621220 - Malenia 'constant thin stream of rot butterflies fluttering in random directions before vanishing'
+621230 - Wide stream ^
+540999 --> 541004
+
+715010 --> 715192 Miquellas haligtree, change color on petals with FXR playground
+648102 --> 648190 Erdtree Avatar, potential leaves/energy usage? Change color
+
+302041 - Fire version if you end up doing it, like burn petals ish
+
+621290 - Another fire version effect, Malenia energy and petals

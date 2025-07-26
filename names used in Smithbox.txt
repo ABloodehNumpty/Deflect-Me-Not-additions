@@ -1,0 +1,65 @@
+Bullet: 
+Numpty FOTRedmanes Damage 400000001
+Numpty FOTRedmanes 400000002
+Numpty Vyke Single Fire 400000003
+Numpty TFOFrenzy Around Character 400000004
+Numpty Moonveil Frenzy Vertical 400000005
+Numpty Moonveil Frenzy Horizontal 400000006
+Numpty Moonveil Frenzy Horizontal Emitter 400000007
+Numpty Moonveil Frenzy Vertical Emitter 400000008
+Numpty Moonveil Frenzy Upward 3 400000009
+Numpty Moonveil Frenzy Vertical 2 400000010
+Numpty Moonveil Frenzy Vertical 3 400000011
+Numpty Fire Dart 1 400000012
+Numpty Fire Dart 2 400000013
+Numpty Fire Dart 1 effect 400000014
+Numpty Fire Dart 2 effect 400000015
+Numpty Fire Dart 1 trail 400000016
+Numpty Fire Dart 2 trail 400000017
+Numpty Fireball 1 400000018
+Numpty Fireball 2 400000019
+Numpty Fire Kick Bullet 400000020
+Numpty Fire Waterfowl bullet 1 400000021
+Numpty Fire Waterfowl bullet 2 400000022
+
+BehaviorParam_PC.txt:
+
+Numpty Vyke Atk1 800000001
+Numpty Vyke Bullet1 800000002
+Numpty Vyke Bullet2 800000003
+Numpty Vyke Single Fire 800000004
+Numpty Vyke Bullet4 800000005
+Numpty Vyke Bullet5 800000006
+Numpty Vyke Atk2 800000007
+Numpty Vyke Atk3 800000008
+Numpty FOTRedmane 800000009
+Numpty TFOFrenzy Around Character 800000010
+Numpty Moonveil Frenzy Vertical 800000011
+Numpty Moonveil Frenzy Horizontal 800000012
+Numpty Moonveil Frenzy Upward 800000013
+Numpty Moonveil Frenzy Vertical 2 800000014
+Numpty Moonveil Frenzy Vertical 3 800000015
+Numpty Fire Dart 1 800000016 
+Numpty Fire Dart 2 800000017
+Numpty Fire Dart 1 effect 800000018
+Numpty Fire Dart 2 effect 800000019
+Numpty Fire Dart 1 trail 800000020
+Numpty Fire Dart 2 trail 800000021
+Numpty Fireball 1 800000022
+Numpty Fireball 2 800000023
+Numpty Fire Kick bullet 800000024
+Numpty Fire Waterfowl bullet 800000025
+
+AtkParam_PC.txt:
+Numpty Vyke Triple Fire
+Numpty FOTRedmanes
+Numpty Vyke Single Fire
+Numpty Moonveil Frenzy Vertical
+Numpty Moonveil Frenzy Vertical 2
+Numpty Moonveil Frenzy Vertical 3
+
+SpEffectParam.txt:
+Numpty Fire Grease - Universal 300000000
+Numpty Messmerfire Grease - Right 300000001
+Numpty Invisible Fire Grease - Universal 300000002
+Numpty Lightning Grease - Right 300000003

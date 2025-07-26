@@ -1,0 +1,44 @@
+Sections left to work on:
+
+SUPER SEKIRO (Complete)
+
+SUPER SEKIRO SKILLS
+- Still need to do: DragonFlash1
+- Go over melee moves again
+- Go over unsheathing moves again (adjust messmer flame moves to be orange flame)
+
+SUPER GENICHIRO (Still adjust everything after doing them)
+- Make spark effects with any unsheathing anims (done-ish)
+- Completed: 1-22 (Still need to do 15)
+- Genichiro15 is a lightning move, figure out later
+- Geni 3/16/21 are melee moves (different fire anims)
+- Test invisible fire buff method for melees (done)
+
+- Go over Genichiro 9/10 again, keep fire effects same color
+- Go over Genichiro 8/13 again, keep fire effects same or rework a lesser Messmer flame
+
+SUPER GENICHIRO BOW
+- No idea, probably lightning stuff, 
+- hard to pair a magic bow and lightning
+
+SUPER OWL
+- 4/11/15 jump move, mess with
+- 17 melee
+- 5 melee/sword hybrid move
+- 9 heavy move
+- 13/14/16 invisible/teleport moves, do something cool, maybe try find the raptor-mists effect
+
+SUPER LONE SHADOW
+
+SUPER ISSHIN
+
+Melee/sword hybrid - Isshin4, 10, 25,
+Powerful ones - Isshin5, 8, 13?, 16, 21, 24,
+Unsheathing attacks - Isshin6, 7, 11, 18, 20, 23, 29
+Melee - Isshin19, 
+Unique - Isshin20 (make it work with 19)
+
+                               6, 7, 11, 18, 20, 23, 29, 30
+
+524052 - Flame spray, recolor it
+524522 - Whirl spray, recolor it
