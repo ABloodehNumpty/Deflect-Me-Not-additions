@@ -9,7 +9,9 @@ as well as automation updates for certain files pertaining to the Deflect Me Not
 https://www.nexusmods.com/eldenring/mods/4138?tab=description
 
 """
-
+import subprocess
+import shutil
+import os
 
 
 #############
@@ -17,6 +19,7 @@ https://www.nexusmods.com/eldenring/mods/4138?tab=description
 ##############################################################################################################
 # #   Section of functions for automatically writing and formatting the code/text to update files with    #  #
 ##############################################################################################################
+
 def printDMN_EventnameIDEntries(current_amount, amount, title1):
     for i in range(1, amount+1):
         print(f'{current_amount+i} = "W_{title1}{i}"')
@@ -75,31 +78,24 @@ def printDMN_AdjustableMoveNames(title1, title2, amount):
             i+=1
         print(temp1[:-2] + " = " + temp2[:-2])
 
-"""ADJUST THESE SETTINGS"""
-startID = '912001'
-#ID following aXXX_ ID, e.g. a066_'911601'
-title1 = "DMN_SuperIsshin"
-#Example "DMN_SuperGenichiro" (Name in behavior/DSAnimStudio)
-title2 = "SUPER_ISSHIN"
-#Example "SUPER_GENICHIRO" 
-amount = 31
-#Amount of animations of given section
-currentEventAmount = 3094
-#current number of entires in EventnameID.txt
+def helperMain(startID, title1, title2, amount, currentEventAmount):
+    """
+    Main function that prints out the necessary 
+    information for moves being added to DMN
 
-"""FUNCTION CALLS"""
-print("--------------- Event IDs ---------------")
-printDMN_EventnameIDEntries(currentEventAmount, amount, title1)
-print("--------------- IDs/Names ---------------")
-printDMN_IDandNameLists(title1, startID, amount)
-print("--------------- Functions ---------------")
-printDMN_Functions(title1, amount)
-#print("--------------- MoveNames ---------------")
-#printDMN_MoveNames(title1, title2, amount)
-
-print("--------------- MoveNames ---------------")
-printDMN_AdjustableMoveNames(title1, title2, amount)
-
+    Laid out for simple copy/paste to other files
+    """
+    print("--------------- Event IDs ---------------")
+    printDMN_EventnameIDEntries(currentEventAmount, amount, title1)
+    print("--------------- IDs/Names ---------------")
+    printDMN_IDandNameLists(title1, startID, amount)
+    print("--------------- Functions ---------------")
+    printDMN_Functions(title1, amount)
+    #Redundant version of method below
+    #print("--------------- MoveNames ---------------")
+    #printDMN_MoveNames(title1, title2, amount)
+    print("--------------- MoveNames ---------------")
+    printDMN_AdjustableMoveNames(title1, title2, amount)
 
 #Sekiro Skills ID list, painful to write out, keeping it here (Author explanation: Sekiro skills is not uniform. Unlike larger movesets like Genichiro 1 - 22 or Isshin 1 - 31...
 #Sekiro skills section of has lots of different move names since its a large variety.)
@@ -113,7 +109,7 @@ printDMN_AdjustableMoveNames(title1, title2, amount)
 # #                 eventnameids.txt and statenameids.txt update functions                                #  #
 ##############################################################################################################
 
-#Full list of names and IDs, collected for merging mod for release
+#Full list of names and IDs, collected for merging mod for release.
 FULL_STORED_NAMES = ['DMN_SuperSekiro1', 'DMN_SuperSekiro2', 'DMN_SuperSekiro3', 'DMN_SuperSekiro4', 'DMN_SuperSekiro5', 'DMN_SuperSekiro6', 'DMN_SuperSekiro7', 'DMN_SuperSekiro8', 'DMN_SuperSekiro9', 'DMN_SuperSekiro10', 'DMN_SuperSekiro11', 'DMN_SuperSekiro12',
                      'DMN_SuperLoadedFireball1', 'DMN_SuperLoadedFireball2', 'DMN_SuperLoadedFireball3', 'DMN_SuperSakuraDance1', 'DMN_SuperShadowrush1', 'DMN_SuperShadowrush2', 'DMN_SuperPrayingStrikes1', 'DMN_SuperPrayingStrikes2', 'DMN_SuperPrayingStrikes3', 'DMN_SuperSenpouLeapingKicks1', 'DMN_SuperSenpouLeapingKicks2', 'DMN_SuperSenpouLeapingKicks3', 'DMN_SuperFloatingPassage1', 'DMN_SuperFloatingPassage2', 'DMN_SuperFloatingPassage3', 'DMN_SuperFloatingPassage4', 'DMN_SuperFloatingPassage5', 'DMN_SuperFloatingPassage6', 'DMN_SuperLoadedShuriken1', 'DMN_SuperLoadedShuriken2', 'DMN_SuperLoadedShuriken3', 'DMN_SuperWhirlwindSlash1', 'DMN_SuperNightjarSlash1', 'DMN_SuperNightjarSlash2', 'DMN_SuperIchimonji1', 'DMN_SuperIchimonji2', 'DMN_SuperIchimonji3', 'DMN_SuperDragonFlash1', 'DMN_SuperDragonFlash2', 'DMN_SuperAshinaCross1', 'DMN_SuperOneMind1', 'DMN_SuperOneMind2',
                      'DMN_SuperGenichiro1', 'DMN_SuperGenichiro2', 'DMN_SuperGenichiro3', 'DMN_SuperGenichiro4', 'DMN_SuperGenichiro5', 'DMN_SuperGenichiro6', 'DMN_SuperGenichiro7', 'DMN_SuperGenichiro8', 'DMN_SuperGenichiro9', 'DMN_SuperGenichiro10', 'DMN_SuperGenichiro11', 'DMN_SuperGenichiro12', 'DMN_SuperGenichiro13', 'DMN_SuperGenichiro14', 'DMN_SuperGenichiro15', 'DMN_SuperGenichiro16', 'DMN_SuperGenichiro17', 'DMN_SuperGenichiro18', 'DMN_SuperGenichiro19', 'DMN_SuperGenichiro20', 'DMN_SuperGenichiro21', 'DMN_SuperGenichiro22',
@@ -208,8 +204,8 @@ def updateState(file_path, names):
 
 #event_file_path = "C:\\Users\\james\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added\DMN-Vanilla\\action\\eventnameid.txt"
 #state_file_path = "C:\\Users\\james\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added\DMN-Vanilla\\action\\statenameid.txt"
-test_event_path =  "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\eventnameid.txt"
-test_state_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\statenameid.txt"
+#test_event_path =  "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\eventnameid.txt"
+#test_state_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\statenameid.txt"
 #updateEvent(test_event_path, FULL_STORED_NAMES)
 #updateState(test_state_path, FULL_STORED_NAMES)
 
@@ -218,6 +214,7 @@ test_state_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\statenam
 ##############################################################################################################
 # #                              c0000.hks update functions                                               #  #
 ##############################################################################################################
+
 def functionUpdate(new_functions, hks_file_path):
     """
     Function that updates c0000.hks with any new functions for player moves.
@@ -301,9 +298,9 @@ def updateHKSfile(hks_file_path, move_file_path, function_file_path):
 
 
 #hks_file_path = "C:\\Users\\james\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added\DMN-Vanilla\\action\\script\\c0000.hks"
-hks_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\c0000.hks"
-function_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\newfunctions.txt"
-move_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\newmoves.txt"
+#hks_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\c0000.hks"
+#function_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\newfunctions.txt"
+#move_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\newmoves.txt"
 
 #updateHKSfile(hks_test_path, move_test_path, function_test_path)
 
@@ -313,13 +310,9 @@ move_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\newmoves.
 # #                              c0000.anibnd.dcxc / a66.tae update functions                              # #
 ##############################################################################################################
 
-test_tae_update_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\c0000.anibnd.dcx"
-new_tae_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\a66.tae"
-witchybnd_path = "C:\\Users\\james\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
-
-import subprocess
-import shutil
-import os
+#test_tae_update_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\c0000.anibnd.dcx"
+#new_tae_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\a66.tae"
+#witchybnd_path = "C:\\Users\\james\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 
 def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
     """
@@ -355,9 +348,9 @@ def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
 # #                              SFX/sfxbnd_commoneffects_dlc02.ffxbnd.dcx update functions                # #
 ##############################################################################################################
 
-test_sfx_file = "C:\\Users\\james\\Desktop\\Test folder\\Code Testing\\sfxbnd_commoneffects_dlc02.ffxbnd.dcx"
-test_EffectsToBeAdded = "C:\\Users\\james\\Desktop\\Test folder\\Code Testing\\effects-to-be-added"
-witchybnd_path = "C:\\Users\\james\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe" #Already above but putting here for clarity
+#test_sfx_file = "C:\\Users\\james\\Desktop\\Test folder\\Code Testing\\sfxbnd_commoneffects_dlc02.ffxbnd.dcx"
+#test_EffectsToBeAdded = "C:\\Users\\james\\Desktop\\Test folder\\Code Testing\\effects-to-be-added"
+#witchybnd_path = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe" #Already above but putting here for clarity
 
 
 def replace_sfx_effects(base_path, effects_dir, witchybnd_path):
@@ -393,15 +386,100 @@ def replace_sfx_effects(base_path, effects_dir, witchybnd_path):
 
 #replace_sfx_effects(test_sfx_file, test_EffectsToBeAdded, witchybnd_path)
 
-
 #############
 # Section 6 #
+##############################################################################################################
+# #                                           BEH Injector script calling function                         # #
+##############################################################################################################
+
+#Paths to tools used in Section 6
+hklib_path_test = "C:\\Desktop\\Mods\\HKLibCLI V0.1.2\\HKLib.CLI.exe"
+erbeh_injector_test = "C:\\Desktop\\Mods\\ERBEHInjector"
+witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
+#c0000.behbnd.dcx path
+beh_test_path = "C:\\Desktop\\Test folder\\Code Testing\\c0000.behbnd.dcx"
+#Variables that script will change in the other script file, test names
+#Variables like stateMachineParent ('Attack_SM') and taeSection ('a066_') remain as are
+#This is because we are updating Attacks for time being, and DMN only uses a066 TAE file
+IDs_test = ['913001, 913002, 913003']
+names_test = ['SuperCrazyMove1, SuperCrazyMove2, SuperCrazyMove3']
+
+def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, ids, names):
+    """
+    Updates the behavior file (c0000.behbnd.dcx) with new states via XML injection.
+
+    1. Unpacks behbnd.dcx via WitchyBND
+    2. Converts c0000.hkx -> XML
+    3. Injects states using ERBehXmlInjector
+    4. Converts modified XML -> c0000.hkx
+    5. Repacks behavior folder back to .dcx
+    """
+    #Initialize, collect directories of appropriate areas
+    base_dir = os.path.dirname(behbnd_path)
+    folder_name = os.path.basename(behbnd_path).replace(".", "-")
+    extracted_path = os.path.join(base_dir, folder_name)
+    hkx_path = os.path.join(extracted_path, "Behaviors\\c0000.hkx")
+    erbeh_injector_path = os.path.join(erbeh_injector_dir, "ERBehXmlInjector.py")
+    xml_path = os.path.join(erbeh_injector_dir, "c0000.xml")
+    #Part 1. Unpack with WitchyBND
+    print("[1/6] Unpacking behavior file...")
+    subprocess.run([witchybnd_path, behbnd_path], check=True)
+
+    #Part 2. Convert HKX to XML
+    print("[2/6] Converting .hkx to .xml...")
+    subprocess.run([hklib_path, "export", hkx_path, xml_path], check=True)
+
+    #Part 3. Inject via ERBehXmlInjector.py
+    print("[3/6] Injecting XML changes with ERBehXmlInjector...")
+    with open(erbeh_injector_path, "r", encoding="utf-8") as file:
+        script_content = file.read()
+
+    #Rewrite ERBehXmlInjector.py variables dynamically
+    #IDs/Names are set to [...] as placeholders in ERBehXmlInjector.py
+    #This is not a default setting when initially downloading ERBehXmlInjector.py
+    #Please adjust each to [...] to ensure this script runs.
+    script_content = script_content.replace("IDs = [...]", f"IDs = {ids}")
+    script_content = script_content.replace("Names = [...]", f"Names = {names}")
+
+    #Write a temporary copy of script with adjusted variables to execute
+    temp_script = os.path.join(base_dir, "ERBehXmlInjector_temp.py")
+    with open(temp_script, "w", encoding="utf-8") as file:
+        file.write(script_content)
+
+    subprocess.run(["python", temp_script], check=True)
+    #Delete the temporary script
+    if os.path.exists(temp_script):
+        os.remove(temp_script)
+        print(f"Deleted temporary script: {temp_script}")
+    else:
+        print(f"Temporary script python file not found: {temp_script}")
+
+    #Part 4. Convert XML back to HKX
+    print("[4/6] Converting modified .xml to .hkx...")
+    subprocess.run([hklib_path, "import", xml_path, hkx_path], check=True)
+    #Delete the XML, as it is now redundant clutter
+    if os.path.exists(xml_path):
+        os.remove(xml_path)
+        print(f"Deleted temporary XML: {xml_path}")
+    else:
+        print(f"c0000.xml file not found: {xml_path}")
+
+    # Step 5: Repack
+    print("[5/6] Repacking behavior folder...")
+    subprocess.run([witchybnd_path, extracted_path], check=True)
+
+    print("[6/6] Behavior file updated successfully.")
+
+#updateBEHfile(witchybnd_test, hklib_path_test, erbeh_injector_test, IDs_test, names_test)
+
+#############
+# Section 7 #
 ##############################################################################################################
 # #                                           Main function                                                # #
 ##############################################################################################################
 
 #Paths of DMN variants being updated, these will be manually changed
-DMN_variants_to_update = "C:\\Users\\james\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added"
+DMN_variants_to_update = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added"
 #Paths of files within each DMN folder, this remains constant
 hks_path = "C:\\action\\script\\c0000.hks"
 event_path = "C:\\action\\eventnameid.txt"
@@ -413,15 +491,18 @@ behavior_path = "C:\\chr\\c0000.behbnd.dcx" #Uses a python script someone else p
 regulation_path = "C:\\regulation.bin" #Regulation.bin is updated via Smithbox app
 
 #Update locations
-updated_files_folder = "C:\\Users\\james\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\Updated files"
-hks_update = os.path.join(updated_files_folder, "C:\\hks update")
-tae_update = os.path.join(updated_files_folder, "C:\\anibnd update\\a66.tae")
-sfx_update = os.path.join(updated_files_folder, "C:\\sfx update\\effects-to-be-added")
+updated_files_folder = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\Updated files"
+hks_update = os.path.join(updated_files_folder, "hks update")
+tae_update = os.path.join(updated_files_folder, "anibnd update\\a66.tae")
+sfx_update = os.path.join(updated_files_folder, "sfx update\\effects-to-be-added")
 
 #Details needed for some functions below
 
-#WitchyBND path, needed for unpacking/repacking folders
-witchy_bnd_path = "C:\\Users\\james\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
+#WitchyBND path, needed for unpacking/repacking folders, used in Sections 4, 5, 6
+witchy_bnd_path = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
+#Paths to tools used in Section 6
+hklib_path_test = "C:\\Desktop\\Mods\\HKLibCLI V0.1.2\\HKLib.CLI.exe"
+erbeh_injector_test = "C:\\Desktop\\Mods\\ERBEHInjector"
 
 #Full list of names and IDs, collected for merging mod for release
 #These were collected manually by using the helper functions in Section 1, if editing same moves in future these are not required for updates again, only for new moves/animations
@@ -462,41 +543,74 @@ def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, sta
         return
     if (hks_path_boolean == False) and (event_path_boolean == False) and (state_path_boolean == False) and (anibnd_path_boolean == False) and (sfx_path_boolean == False):
         print("You have successfully updated nothing, try changing something to True.")
-    
+        return
     #Loop through folder with all variants/merges of DMN
     for filename in os.listdir(DMN_variants_to_update):
+        print(f"Processing variant: {filename}")
         #Create path to the DMN variants folder
         variant_folder = os.path.join(DMN_variants_to_update, filename)
-
         #Check if updating c0000.hks
         if hks_path_boolean == True:
             variant_hks_path = os.path.join(variant_folder, hks_path)
-            new_moves = os.path.join(hks_update, "C:\\newmoves.txt")
-            new_functions = os.path.join(hks_update, "C:\\newfunctions.txt")
-            updateHKSfile(variant_hks_path, new_moves, new_functions)
+            new_moves = os.path.join(hks_update, "newmoves.txt")
+            new_functions = os.path.join(hks_update, "newfunctions.txt")
+            try:
+                updateHKSfile(variant_hks_path, new_moves, new_functions)
+            except FileNotFoundError:
+                print(f"ERROR: c0000.hks not found in {filename}, skipping HKS update.")
         
         #Check if updating eventnameid.txt, if true then state_path_boolean ought to be true too (Your call!)
         if event_path_boolean == True:
             variant_event_path = os.path.join(variant_folder, event_path)
-            updateEvent(variant_event_path, STORED_NAMES)
+            try:
+                updateEvent(variant_event_path, STORED_NAMES)
+            except FileNotFoundError:
+                print(f"ERROR: eventnameid.txt not found in {filename}, skipping event update.")
         #Check if updating statenameid.txt, if true then event_path_boolean ought to be true too (Your call!)
         if state_path_boolean == True:
             variant_state_path = os.path.join(variant_folder, state_path)
-            updateState(variant_state_path, STORED_NAMES)
+            try:
+                updateState(variant_state_path, STORED_NAMES)
+            except FileNotFoundError:
+                print(f"ERROR: statenameid.txt not found in {filename}, skipping state update.")
         
         #Check if updating a66.tae in c0000.anibnd.dcx
         if anibnd_path_boolean == True:
             variant_anibnd_path = os.path.join(variant_folder, anibnd_path)
-            replace_a66_tae(variant_anibnd_path, tae_update, witchy_bnd_path)
+            try:
+                replace_a66_tae(variant_anibnd_path, tae_update, witchy_bnd_path)
+            except FileNotFoundError:
+                print(f"ERROR: c0000.anibnd.dcx not found in {filename}, skipping anibnd update.")
         
         #Check if updating sfx files
         if sfx_path_boolean == True:
             variant_sfx_path = os.path.join(variant_folder, sfx_path)
-            replace_sfx_effects(variant_sfx_path, sfx_update, witchy_bnd_path)
+            try:
+                replace_sfx_effects(variant_sfx_path, sfx_update, witchy_bnd_path)
+            except FileNotFoundError:
+                print(f"ERROR: sfx file not found in {filename}, skipping sfx update.")
         
-        #State that all updates are complete!
-        print("All updates complete.")
+        #State individual update complete!        
+        print(f"Update complete for variant: {filename}")
+    #State that all updates are complete!
+    print("All updates complete.")
             
-        
+
+"""ADJUST THESE SETTINGS FOR HELPER MAIN"""
+startID = '912001'
+#ID following aXXX_ ID, e.g. a066_'911601'
+title1 = "DMN_SuperIsshin"
+#Example "DMN_SuperGenichiro" (Name in behavior/DSAnimStudio)
+title2 = "SUPER_ISSHIN"
+#Example "SUPER_GENICHIRO" 
+amount = 31
+#Amount of animations of given section
+currentEventAmount = 3094
+#current number of entires in EventnameID.txt
+
+
 #Magic button, only run if certain...
 #updateMods(DMN_variants_to_update, True, True, True, True, True)
+
+#Prints out helpful functions/formats/lines of text for files needed in updating DMN
+#helperMain(startID, title1, title2, amount, currentEventAmount)
