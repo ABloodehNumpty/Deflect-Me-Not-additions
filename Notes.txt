@@ -1,3 +1,22 @@
+Version 3.0 (EXP37.2) NON-OFFICIAL UPDATE: Submitted by user Tae Feckin Numpty / ABloodehNumpty
+
+!!! 
+If the merged mods versions do not work with Version 3.0 (EXP37),
+they won't work with this either. This is not a mod compatability update. 
+!!!
+
+Fixes:
+- Fixes applied in EXP37.1 also applied to new variants of merges for DMN
+- Janky Combos fix applied to merges: See Rei Jr's server for full explanation as its a niche issue.
+  'Combos would not properly begin again when doing actions like dodging/deflecting, defaulting to normal_combo incorrectly.'
+- Shuriken moves (both the new Super and the vanilla non-Super version) now have a model in the player's hand rather than seemingly spawning one during the throw.
+- Some minor move adjustments beyond the Super fire effect additions that make the moves work appropriately with the effects. Please let Numpty know if these changes feel unnatural or different in ways you dislike.
+
+Changes:
+- Changes applied in EXP37.1 also applied to new variants of merges for DMN
+- Super Combos added, allows for dedicated combos to play during Super Mode
+- Super versions of each move added to give players a 'Super' feeling when using DMN, moves were tailored with fire effects to look appealing with a sword weapon. Please let Numpty know if these are unsatisfactory in any way, whether with swords or other weapons, as this is mostly untested (Tested with katana/great katana). 
+________________________________________________________________________________
 Version 3.0 (EXP37.1) NON-OFFICIAL UPDATE: Submitted by user Tae Feckin Numpty
 
 !!! 

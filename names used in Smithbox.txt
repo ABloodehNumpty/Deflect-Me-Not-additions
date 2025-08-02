@@ -1,3 +1,12 @@
+This file contains the IDs of each param section that has changes in my personal copy of the DMN mod changes.
+This is contents that are in the regulation.bin file, which is read/edited with Smithbox.
+
+Bullet section: 400000012 onwards are used in release version
+BehaviorParam_PC section: 800000016 onwards are used in release version
+SpEffectParam section: All but 300000001 used in release version
+
+(Note to future: These IDs likely won't match up in release version, I will write a release version once I've chosen the IDs that have the least conflict with other merges)
+
 Bullet: 
 Numpty FOTRedmanes Damage 400000001
 Numpty FOTRedmanes 400000002
@@ -22,7 +31,7 @@ Numpty Fire Kick Bullet 400000020
 Numpty Fire Waterfowl bullet 1 400000021
 Numpty Fire Waterfowl bullet 2 400000022
 
-BehaviorParam_PC.txt:
+BehaviorParam_PC:
 
 Numpty Vyke Atk1 800000001
 Numpty Vyke Bullet1 800000002
@@ -50,7 +59,7 @@ Numpty Fireball 2 800000023
 Numpty Fire Kick bullet 800000024
 Numpty Fire Waterfowl bullet 800000025
 
-AtkParam_PC.txt:
+AtkParam_PC:
 Numpty Vyke Triple Fire
 Numpty FOTRedmanes
 Numpty Vyke Single Fire
@@ -58,7 +67,7 @@ Numpty Moonveil Frenzy Vertical
 Numpty Moonveil Frenzy Vertical 2
 Numpty Moonveil Frenzy Vertical 3
 
-SpEffectParam.txt:
+SpEffectParam:
 Numpty Fire Grease - Universal 300000000
 Numpty Messmerfire Grease - Right 300000001
 Numpty Invisible Fire Grease - Universal 300000002
