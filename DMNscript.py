@@ -393,7 +393,7 @@ def replace_sfx_effects(base_path, effects_dir, witchybnd_path):
 ##############################################################################################################
 
 #Paths to tools used in Section 6
-hklib_path_test = "C:\\Desktop\\Mods\\HKLibCLI V0.1.2\\HKLib.CLI.exe"
+hklib_path_test = "C:\\Desktop\\Mods\\HKLibCLI.v0.1.2\\net7.0\\HKLib.CLI.exe"
 erbeh_injector_test = "C:\\Desktop\\Mods\\ERBEHInjector"
 witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 #c0000.behbnd.dcx path
@@ -401,8 +401,8 @@ beh_test_path = "C:\\Desktop\\Test folder\\Code Testing\\c0000.behbnd.dcx"
 #Variables that script will change in the other script file, test names
 #Variables like stateMachineParent ('Attack_SM') and taeSection ('a066_') remain as are
 #This is because we are updating Attacks for time being, and DMN only uses a066 TAE file
-IDs_test = ['913001, 913002, 913003']
-names_test = ['SuperCrazyMove1, SuperCrazyMove2, SuperCrazyMove3']
+IDs_test = ['913001', '913002', '913003']
+names_test = ['SuperCrazyMove1', 'SuperCrazyMove2', 'SuperCrazyMove3']
 
 def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, ids, names):
     """
@@ -424,10 +424,16 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
     #Part 1. Unpack with WitchyBND
     print("[1/6] Unpacking behavior file...")
     subprocess.run([witchybnd_path, behbnd_path], check=True)
-
+    print(f"Checking if .hkx file exists at: {hkx_path}")
+    print(f"File exists: {os.path.exists(hkx_path)}")
     #Part 2. Convert HKX to XML
     print("[2/6] Converting .hkx to .xml...")
-    subprocess.run([hklib_path, "export", hkx_path, xml_path], check=True)
+    subprocess.run([hklib_path, hkx_path], check=True)
+
+    #Move the generated XML to your target path
+    auto_xml_path = os.path.splitext(hkx_path)[0] + ".xml"
+    shutil.move(auto_xml_path, xml_path)
+    print(f"Moved generated XML to: {xml_path}")
 
     #Part 3. Inject via ERBehXmlInjector.py
     print("[3/6] Injecting XML changes with ERBehXmlInjector...")
@@ -442,11 +448,11 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
     script_content = script_content.replace("Names = [...]", f"Names = {names}")
 
     #Write a temporary copy of script with adjusted variables to execute
-    temp_script = os.path.join(base_dir, "ERBehXmlInjector_temp.py")
+    temp_script = os.path.join(erbeh_injector_dir, "ERBehXmlInjector_temp.py")
     with open(temp_script, "w", encoding="utf-8") as file:
         file.write(script_content)
-
-    subprocess.run(["python", temp_script], check=True)
+    #Run the temporary script. Also have an automatic '\n' input to auto-bypass the 'Enter to continue...' prompt
+    subprocess.run(["python", temp_script], input=b"\n", check=True)
     #Delete the temporary script
     if os.path.exists(temp_script):
         os.remove(temp_script)
@@ -456,7 +462,13 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
 
     #Part 4. Convert XML back to HKX
     print("[4/6] Converting modified .xml to .hkx...")
-    subprocess.run([hklib_path, "import", xml_path, hkx_path], check=True)
+    subprocess.run([hklib_path, xml_path], check=True)
+    
+    #Move the generated hkx file back to original folder, replace old one
+    auto_hkx_path = os.path.splitext(xml_path)[0] + ".hkx"
+    shutil.move(auto_hkx_path, hkx_path)
+    print(f"Moved generated HKX to: {hkx_path}")
+
     #Delete the XML, as it is now redundant clutter
     if os.path.exists(xml_path):
         os.remove(xml_path)
@@ -470,62 +482,40 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
 
     print("[6/6] Behavior file updated successfully.")
 
-#updateBEHfile(witchybnd_test, hklib_path_test, erbeh_injector_test, IDs_test, names_test)
+#updateBEHfile(beh_test_path, witchybnd_test, hklib_path_test, erbeh_injector_test, IDs_test, names_test)
 
 #############
 # Section 7 #
 ##############################################################################################################
+# #                                           Regulation.bin Update Function                               # #
+##############################################################################################################
+
+#############
+# Section 8 #
+##############################################################################################################
 # #                                           Main function                                                # #
 ##############################################################################################################
 
-#Paths of DMN variants being updated, these will be manually changed
-DMN_variants_to_update = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added"
-#Paths of files within each DMN folder, this remains constant
+
+#Paths of files within each DMN folder, this remains constant, as its the form that DMN and Elden Ring mod folders in general take
 hks_path = "C:\\action\\script\\c0000.hks"
 event_path = "C:\\action\\eventnameid.txt"
 state_path = "C:\\action\\statenameid.txt"
 anibnd_path = "C:\\chr\\c0000.anibnd.dcx" #Any edits on the file being replaced are done by DSAnimStudio by MeowMaritus
 sfx_path = "C:\\sfx\\sfxbnd_commoneffects_dlc02.ffxbnd.dcx"
-#Files that are yet to be automated, not included in updateMods() till then
 behavior_path = "C:\\chr\\c0000.behbnd.dcx" #Uses a python script someone else provided to the mod community, BEH injector
+#Files that are yet to be automated, not included in updateMods() till then
 regulation_path = "C:\\regulation.bin" #Regulation.bin is updated via Smithbox app
 
-#Update locations
-updated_files_folder = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\Updated files"
-hks_update = os.path.join(updated_files_folder, "hks update")
-tae_update = os.path.join(updated_files_folder, "anibnd update\\a66.tae")
-sfx_update = os.path.join(updated_files_folder, "sfx update\\effects-to-be-added")
-
-#Details needed for some functions below
+#Tools needed for updates
 
 #WitchyBND path, needed for unpacking/repacking folders, used in Sections 4, 5, 6
 witchy_bnd_path = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 #Paths to tools used in Section 6
-hklib_path_test = "C:\\Desktop\\Mods\\HKLibCLI V0.1.2\\HKLib.CLI.exe"
-erbeh_injector_test = "C:\\Desktop\\Mods\\ERBEHInjector"
+hklib_path = "C:\\Desktop\\Mods\\HKLibCLI.v0.1.2\\net7.0\\HKLib.CLI.exe"
+erbeh_injector_path = "C:\\Desktop\\Mods\\ERBEHInjector"
 
-#Full list of names and IDs, collected for merging mod for release
-#These were collected manually by using the helper functions in Section 1, if editing same moves in future these are not required for updates again, only for new moves/animations
-#Needed for adding event/states (Autonomous) and BEH injector (Not used autonomously yet)
-STORED_NAMES = ['DMN_SuperSekiro1', 'DMN_SuperSekiro2', 'DMN_SuperSekiro3', 'DMN_SuperSekiro4', 'DMN_SuperSekiro5', 'DMN_SuperSekiro6', 'DMN_SuperSekiro7', 'DMN_SuperSekiro8', 'DMN_SuperSekiro9', 'DMN_SuperSekiro10', 'DMN_SuperSekiro11', 'DMN_SuperSekiro12',
-                     'DMN_SuperLoadedFireball1', 'DMN_SuperLoadedFireball2', 'DMN_SuperLoadedFireball3', 'DMN_SuperSakuraDance1', 'DMN_SuperShadowrush1', 'DMN_SuperShadowrush2', 'DMN_SuperPrayingStrikes1', 'DMN_SuperPrayingStrikes2', 'DMN_SuperPrayingStrikes3', 'DMN_SuperSenpouLeapingKicks1', 'DMN_SuperSenpouLeapingKicks2', 'DMN_SuperSenpouLeapingKicks3', 'DMN_SuperFloatingPassage1', 'DMN_SuperFloatingPassage2', 'DMN_SuperFloatingPassage3', 'DMN_SuperFloatingPassage4', 'DMN_SuperFloatingPassage5', 'DMN_SuperFloatingPassage6', 'DMN_SuperLoadedShuriken1', 'DMN_SuperLoadedShuriken2', 'DMN_SuperLoadedShuriken3', 'DMN_SuperWhirlwindSlash1', 'DMN_SuperNightjarSlash1', 'DMN_SuperNightjarSlash2', 'DMN_SuperIchimonji1', 'DMN_SuperIchimonji2', 'DMN_SuperIchimonji3', 'DMN_SuperDragonFlash1', 'DMN_SuperDragonFlash2', 'DMN_SuperAshinaCross1', 'DMN_SuperOneMind1', 'DMN_SuperOneMind2',
-                     'DMN_SuperGenichiro1', 'DMN_SuperGenichiro2', 'DMN_SuperGenichiro3', 'DMN_SuperGenichiro4', 'DMN_SuperGenichiro5', 'DMN_SuperGenichiro6', 'DMN_SuperGenichiro7', 'DMN_SuperGenichiro8', 'DMN_SuperGenichiro9', 'DMN_SuperGenichiro10', 'DMN_SuperGenichiro11', 'DMN_SuperGenichiro12', 'DMN_SuperGenichiro13', 'DMN_SuperGenichiro14', 'DMN_SuperGenichiro15', 'DMN_SuperGenichiro16', 'DMN_SuperGenichiro17', 'DMN_SuperGenichiro18', 'DMN_SuperGenichiro19', 'DMN_SuperGenichiro20', 'DMN_SuperGenichiro21', 'DMN_SuperGenichiro22',
-                     'DMN_SuperGreatShinobiOwl1', 'DMN_SuperGreatShinobiOwl2', 'DMN_SuperGreatShinobiOwl3', 'DMN_SuperGreatShinobiOwl4', 'DMN_SuperGreatShinobiOwl5', 'DMN_SuperGreatShinobiOwl6', 'DMN_SuperGreatShinobiOwl7', 'DMN_SuperGreatShinobiOwl8', 'DMN_SuperGreatShinobiOwl9', 'DMN_SuperGreatShinobiOwl10', 'DMN_SuperGreatShinobiOwl11', 'DMN_SuperGreatShinobiOwl12', 'DMN_SuperGreatShinobiOwl13', 'DMN_SuperGreatShinobiOwl14', 'DMN_SuperGreatShinobiOwl15', 'DMN_SuperGreatShinobiOwl16', 'DMN_SuperGreatShinobiOwl17', 'DMN_SuperGreatShinobiOwl18', 'DMN_SuperGreatShinobiOwl19',
-                     'DMN_SuperLoneShadow1', 'DMN_SuperLoneShadow2', 'DMN_SuperLoneShadow3', 'DMN_SuperLoneShadow4', 'DMN_SuperLoneShadow5', 'DMN_SuperLoneShadow6', 'DMN_SuperLoneShadow7', 'DMN_SuperLoneShadow8', 'DMN_SuperLoneShadow9', 'DMN_SuperLoneShadow10', 'DMN_SuperLoneShadow11',
-                     'DMN_SuperIsshin1', 'DMN_SuperIsshin2', 'DMN_SuperIsshin3', 'DMN_SuperIsshin4', 'DMN_SuperIsshin5', 'DMN_SuperIsshin6', 'DMN_SuperIsshin7', 'DMN_SuperIsshin8', 'DMN_SuperIsshin9', 'DMN_SuperIsshin10', 'DMN_SuperIsshin11', 'DMN_SuperIsshin12', 'DMN_SuperIsshin13', 'DMN_SuperIsshin14', 'DMN_SuperIsshin15', 'DMN_SuperIsshin16', 'DMN_SuperIsshin17', 'DMN_SuperIsshin18', 'DMN_SuperIsshin19', 'DMN_SuperIsshin20', 'DMN_SuperIsshin21', 'DMN_SuperIsshin22', 'DMN_SuperIsshin23', 'DMN_SuperIsshin24', 'DMN_SuperIsshin25', 'DMN_SuperIsshin26', 'DMN_SuperIsshin27', 'DMN_SuperIsshin28', 'DMN_SuperIsshin29', 'DMN_SuperIsshin30', 'DMN_SuperIsshin31'
-                    ]
-
-
-#Needed for BEH injector (Not used autonomously yet)
-STORED_IDS = ['911435', '911436', '911437', '911438', '911439', '911440', '911441', '911442', '911443', '911444', '911445', '911446',
-                   '911461', '911462', '911463', '911563', '911561', '911562', '911551', '911552', '911553', '911541', '911542', '911543', '911531', '911532', '911533', '911534', '911535', '911536', '911458', '911459', '911460', '911470', '911480', '911481', '911491', '911492', '911493', '911501', '911502', '911511', '911521', '911522',
-                   '911601', '911602', '911603', '911604', '911605', '911606', '911607', '911608', '911609', '911610', '911611', '911612', '911613', '911614', '911615', '911616', '911617', '911618', '911619', '911620', '911621', '911622',
-                   '911801', '911802', '911803', '911804', '911805', '911806', '911807', '911808', '911809', '911810', '911811', '911812', '911813', '911814', '911815', '911816', '911817', '911818', '911819',
-                   '911901', '911902', '911903', '911904', '911905', '911906', '911907', '911908', '911909', '911910', '911911',
-                   '912001', '912002', '912003', '912004', '912005', '912006', '912007', '912008', '912009', '912010', '912011', '912012', '912013', '912014', '912015', '912016', '912017', '912018', '912019', '912020', '912021', '912022', '912023', '912024', '912025', '912026', '912027', '912028', '912029', '912030', '912031'
-                  ]
-
-def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, state_path_boolean, anibnd_path_boolean, sfx_path_boolean):
+def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, state_path_boolean, anibnd_path_boolean, sfx_path_boolean, beh_path_boolean):
     """
     Main function that applies all updates user wants to apply.
 
@@ -590,11 +580,25 @@ def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, sta
             except FileNotFoundError:
                 print(f"ERROR: sfx file not found in {filename}, skipping sfx update.")
         
+        #Check if updating c0000.behbnd.dcx file
+        if beh_path_boolean == True:
+            variant_beh_path = os.path.join(variant_folder, behavior_path)
+            try:
+                updateBEHfile(variant_beh_path, witchy_bnd_path, hklib_path, erbeh_injector_path, STORED_IDS, STORED_NAMES)
+            
+            except FileNotFoundError:
+                print(f"ERROR: c0000.behbnd.dcx not found in {filename}, skipping behbnd update.")
+
         #State individual update complete!        
         print(f"Update complete for variant: {filename}")
     #State that all updates are complete!
     print("All updates complete.")
             
+#############
+# Section 9 #
+##############################################################################################################
+# #                                           Settings, run function below                                 # #
+##############################################################################################################
 
 """ADJUST THESE SETTINGS FOR HELPER MAIN"""
 startID = '912001'
@@ -608,9 +612,49 @@ amount = 31
 currentEventAmount = 3094
 #current number of entires in EventnameID.txt
 
-
-#Magic button, only run if certain...
-#updateMods(DMN_variants_to_update, True, True, True, True, True)
-
 #Prints out helpful functions/formats/lines of text for files needed in updating DMN
 #helperMain(startID, title1, title2, amount, currentEventAmount)
+
+"""ADJUST THESE SETTINGS FOR MOD UPDATE"""
+#Details needed for some functions below
+
+#Full list of names and IDs, collected for merging mod for release
+#These were collected manually by using the helper functions in Section 1, if editing same moves in future these are not required for updates again, only for new moves/animations
+#Needed for adding event/states (Autonomous) and BEH injector
+STORED_NAMES = ['DMN_SuperSekiro1', 'DMN_SuperSekiro2', 'DMN_SuperSekiro3', 'DMN_SuperSekiro4', 'DMN_SuperSekiro5', 'DMN_SuperSekiro6', 'DMN_SuperSekiro7', 'DMN_SuperSekiro8', 'DMN_SuperSekiro9', 'DMN_SuperSekiro10', 'DMN_SuperSekiro11', 'DMN_SuperSekiro12',
+                     'DMN_SuperLoadedFireball1', 'DMN_SuperLoadedFireball2', 'DMN_SuperLoadedFireball3', 'DMN_SuperSakuraDance1', 'DMN_SuperShadowrush1', 'DMN_SuperShadowrush2', 'DMN_SuperPrayingStrikes1', 'DMN_SuperPrayingStrikes2', 'DMN_SuperPrayingStrikes3', 'DMN_SuperSenpouLeapingKicks1', 'DMN_SuperSenpouLeapingKicks2', 'DMN_SuperSenpouLeapingKicks3', 'DMN_SuperFloatingPassage1', 'DMN_SuperFloatingPassage2', 'DMN_SuperFloatingPassage3', 'DMN_SuperFloatingPassage4', 'DMN_SuperFloatingPassage5', 'DMN_SuperFloatingPassage6', 'DMN_SuperLoadedShuriken1', 'DMN_SuperLoadedShuriken2', 'DMN_SuperLoadedShuriken3', 'DMN_SuperWhirlwindSlash1', 'DMN_SuperNightjarSlash1', 'DMN_SuperNightjarSlash2', 'DMN_SuperIchimonji1', 'DMN_SuperIchimonji2', 'DMN_SuperIchimonji3', 'DMN_SuperDragonFlash1', 'DMN_SuperDragonFlash2', 'DMN_SuperAshinaCross1', 'DMN_SuperOneMind1', 'DMN_SuperOneMind2',
+                     'DMN_SuperGenichiro1', 'DMN_SuperGenichiro2', 'DMN_SuperGenichiro3', 'DMN_SuperGenichiro4', 'DMN_SuperGenichiro5', 'DMN_SuperGenichiro6', 'DMN_SuperGenichiro7', 'DMN_SuperGenichiro8', 'DMN_SuperGenichiro9', 'DMN_SuperGenichiro10', 'DMN_SuperGenichiro11', 'DMN_SuperGenichiro12', 'DMN_SuperGenichiro13', 'DMN_SuperGenichiro14', 'DMN_SuperGenichiro15', 'DMN_SuperGenichiro16', 'DMN_SuperGenichiro17', 'DMN_SuperGenichiro18', 'DMN_SuperGenichiro19', 'DMN_SuperGenichiro20', 'DMN_SuperGenichiro21', 'DMN_SuperGenichiro22',
+                     'DMN_SuperGreatShinobiOwl1', 'DMN_SuperGreatShinobiOwl2', 'DMN_SuperGreatShinobiOwl3', 'DMN_SuperGreatShinobiOwl4', 'DMN_SuperGreatShinobiOwl5', 'DMN_SuperGreatShinobiOwl6', 'DMN_SuperGreatShinobiOwl7', 'DMN_SuperGreatShinobiOwl8', 'DMN_SuperGreatShinobiOwl9', 'DMN_SuperGreatShinobiOwl10', 'DMN_SuperGreatShinobiOwl11', 'DMN_SuperGreatShinobiOwl12', 'DMN_SuperGreatShinobiOwl13', 'DMN_SuperGreatShinobiOwl14', 'DMN_SuperGreatShinobiOwl15', 'DMN_SuperGreatShinobiOwl16', 'DMN_SuperGreatShinobiOwl17', 'DMN_SuperGreatShinobiOwl18', 'DMN_SuperGreatShinobiOwl19',
+                     'DMN_SuperLoneShadow1', 'DMN_SuperLoneShadow2', 'DMN_SuperLoneShadow3', 'DMN_SuperLoneShadow4', 'DMN_SuperLoneShadow5', 'DMN_SuperLoneShadow6', 'DMN_SuperLoneShadow7', 'DMN_SuperLoneShadow8', 'DMN_SuperLoneShadow9', 'DMN_SuperLoneShadow10', 'DMN_SuperLoneShadow11',
+                     'DMN_SuperIsshin1', 'DMN_SuperIsshin2', 'DMN_SuperIsshin3', 'DMN_SuperIsshin4', 'DMN_SuperIsshin5', 'DMN_SuperIsshin6', 'DMN_SuperIsshin7', 'DMN_SuperIsshin8', 'DMN_SuperIsshin9', 'DMN_SuperIsshin10', 'DMN_SuperIsshin11', 'DMN_SuperIsshin12', 'DMN_SuperIsshin13', 'DMN_SuperIsshin14', 'DMN_SuperIsshin15', 'DMN_SuperIsshin16', 'DMN_SuperIsshin17', 'DMN_SuperIsshin18', 'DMN_SuperIsshin19', 'DMN_SuperIsshin20', 'DMN_SuperIsshin21', 'DMN_SuperIsshin22', 'DMN_SuperIsshin23', 'DMN_SuperIsshin24', 'DMN_SuperIsshin25', 'DMN_SuperIsshin26', 'DMN_SuperIsshin27', 'DMN_SuperIsshin28', 'DMN_SuperIsshin29', 'DMN_SuperIsshin30', 'DMN_SuperIsshin31'
+                    ]
+
+
+#Needed for BEH injector
+STORED_IDS = ['911435', '911436', '911437', '911438', '911439', '911440', '911441', '911442', '911443', '911444', '911445', '911446',
+                   '911461', '911462', '911463', '911563', '911561', '911562', '911551', '911552', '911553', '911541', '911542', '911543', '911531', '911532', '911533', '911534', '911535', '911536', '911458', '911459', '911460', '911470', '911480', '911481', '911491', '911492', '911493', '911501', '911502', '911511', '911521', '911522',
+                   '911601', '911602', '911603', '911604', '911605', '911606', '911607', '911608', '911609', '911610', '911611', '911612', '911613', '911614', '911615', '911616', '911617', '911618', '911619', '911620', '911621', '911622',
+                   '911801', '911802', '911803', '911804', '911805', '911806', '911807', '911808', '911809', '911810', '911811', '911812', '911813', '911814', '911815', '911816', '911817', '911818', '911819',
+                   '911901', '911902', '911903', '911904', '911905', '911906', '911907', '911908', '911909', '911910', '911911',
+                   '912001', '912002', '912003', '912004', '912005', '912006', '912007', '912008', '912009', '912010', '912011', '912012', '912013', '912014', '912015', '912016', '912017', '912018', '912019', '912020', '912021', '912022', '912023', '912024', '912025', '912026', '912027', '912028', '912029', '912030', '912031'
+                  ]
+
+
+#Path of DMN variants folder, 
+#These will be manually added as mod author adds more merges
+#Path to folder is to be changed when making another mod version, and after an update the updated files should be removed from 'To be added'
+DMN_variants_to_update = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added"
+
+#Update locations
+
+#This folder changes for each update, e.g. DMN_V3_EXP37.2\\Updated files, 37.2 is subject to change
+updated_files_folder = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\Updated files"
+#These remain constant, depend on updated_files_folder
+hks_update = os.path.join(updated_files_folder, "hks update")
+tae_update = os.path.join(updated_files_folder, "anibnd update\\a66.tae")
+sfx_update = os.path.join(updated_files_folder, "sfx update\\effects-to-be-added")
+
+#Magic button, only run if certain...
+
+###updateMods(DMN_variants_to_update, True, True, True, True, True, True)
+
