@@ -479,9 +479,16 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
     # Step 5: Repack
     print("[5/6] Repacking behavior folder...")
     subprocess.run([witchybnd_path, extracted_path], check=True)
+    
+    #Delete the unpacked folder, as it is now redundant clutter
+    if os.path.exists(extracted_path):
+        os.remove(extracted_path)
+        print(f"Deleted unpacked folder: {extracted_path}")
+    else:
+        print(f"c0000.xml file not found: {extracted_path}")
 
     print("[6/6] Behavior file updated successfully.")
-
+    
 #updateBEHfile(beh_test_path, witchybnd_test, hklib_path_test, erbeh_injector_test, IDs_test, names_test)
 
 #############
