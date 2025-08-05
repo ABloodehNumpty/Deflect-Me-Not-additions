@@ -1,0 +1,285 @@
+-- Below is an example moveset provided by a fellow user!
+-- It is laid out in a way intended to allow you to config your moveset for both one-handing and two-handing your weapon as you please.
+-- This moveset will work both one-handed/two-handed with Shortcuts disabled.
+
+
+-- If you want to customize the moveset...
+-- Simply add/change lines of combos as you please like below.
+
+-- If you want to use a different weapon...
+-- Simply copy and paste this to the chosen weapon's category and edit the moveset as you please like below.
+-- e.g. [WEAPON_CATEGORY_LARGE_CURVEDSWORD] = {}
+
+-- I personally recommend using "Visual Studio Code" for editing the file
+-- It is neater than using Notepad.
+
+-- Lines starting with '--' are quotes. You can remove these without issue.
+-- There are some within the moveset to try help instruct you.
+
+
+-- Great Katana moveset by ABloodehNumpty, kudos to Aikeutuido for his wonderful mod!
+[WEAPON_CATEGORY_LARGE_KATANA]			= {  
+	
+	{   -- Great Katana one-handed moveset.
+		ONE_HAND =
+		{
+			-- Combo of attacks in normal state.
+			NORMAL_COMBO =
+			{
+				{R1, R1, R1, R1, R1},
+				{ISSHIN12, ISSHIN3, ISSHIN26, ISSHIN15, WHIRLWIND_SLASH1},
+
+				{R1, R1, R1, R1, R2},
+				{0, 0, 0, 0, SHADOWN_RUSH2},
+                -- The 0's are just a coding shorthand way of repeating the previous combos entries.
+				-- aka, this combo is just: {ISSHIN12, ISSHIN3, ISSHIN26, ISSHIN15, SHADOWN_RUSH2}
+
+				{R1, R1, R1, R2, R2},
+				{0, 0, 0, SENPOU_LEAPING_KICKS2, SHADOWN_RUSH2},
+
+				{R1, R1, R2, R2, R2},
+				{0, 0, ONE_MIND2, FLOATING_PASSAGE1, SHADOWN_RUSH2},
+
+				{R1, R2, R2, R2, R2},
+				{0, GENICHIRO5, GREAT_SHINOBI_OWL11, LONE_SHADOW10, ISSHIN16},
+                
+				--{R2, R2, R2, R2, R2},
+				--{ASHINA_CROSS1, FLOATING_PASSAGE2, FLOATING_PASSAGE4, LONE_SHADOW3, "W_DMN_GuardStance1_Perfect"},
+                -- This combo is quoted out. You can take away the -- to use it.
+				-- Make sure to quote out the combo below if so.
+				-- Overpowered with bleed! So might make game a little too easy.
+
+				{R2, R2, R2, R2, R2},
+				{SEKIRO5, ISSHIN27, SENPOU_LEAPING_KICKS2, LONE_SHADOW3, "W_DMN_GuardStance1_Perfect"}
+
+			},
+            
+			
+			-- Combo of attacks after guarding/deflecting.
+			GUARD_COUNTER =
+			{
+				{R1, R1, R1},
+				{SEKIRO7, SEKIRO8, SEKIRO9},
+
+				{R2, R2, R2},
+				{FLOATING_PASSAGE5, FLOATING_PASSAGE6, ISSHIN17}
+
+			},
+
+			-- Combo of attacks upon enemy hit in guard stance.
+			-- See MOVESETS section of c0000.hks file.
+			-- Similar to deflect, but you hold block, and attack on deflect timing.
+			GUARD_STANCE =
+			{
+				{R1, R1, R1, R1},
+				{SEKIRO7, SEKIRO8, GENICHIRO16, GENICHIRO10},
+
+				{R2, R2, R2},
+				{GREAT_SHINOBI_OWL17, LONE_SHADOW6, GREAT_SHINOBI_OWL9}
+				-- Awesome combo, credit goes to Aikutuido for this one
+			},
+			
+			-- Combo of attacks after dashing/sprinting.
+			DASH_COMBO =
+			{
+				{R1, R1, R1},
+				{ISSHIN14, ISSHIN15, ISSHIN16},
+
+				{R2, R2},
+				{GREAT_SHINOBI_OWL4, GREAT_SHINOBI_OWL9}
+			},
+			-- Combo of attacks after rolling/dodging.
+			ROLL_COMBO =
+			{
+				{R1},
+				{ISSHIN31},
+
+				{R2},
+				{GENICHIRO19}
+			},
+
+			-- Combo of attacks after backstepping.
+			BACKSTEP_COMBO =
+			{
+				{R1},
+				{SEKIRO1},
+
+				{R2},
+				{GENICHIRO19}
+			},
+
+			-- Combo of attacks in stealth mode (crouching).
+			STEALTH_COMBO =
+			{
+				{R1},
+				{GENICHIRO19},
+
+				{R2},
+				{SHADOWN_RUSH1}
+			},
+            
+			-- Super combos, same as above, but only active while in super mode
+			SUPER_NORMAL_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_GUARD_COUNTER =
+			{
+	            --Empty for now
+			},
+
+			SUPER_GUARD_STANCE =
+			{
+	            --Empty for now
+			},
+
+			SUPER_DASH_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_ROLL_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_BACKSTEP_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_STEALTH_COMBO =
+			{
+	            --Empty for now
+			}
+           
+		},
+	
+	
+		-- Great Katana two-handed moveset.
+		TWO_HAND =
+		{
+			-- Combo of attacks in normal state.
+			NORMAL_COMBO =
+			{
+				{R1, R1, R1, R1, R1},
+				{GREAT_SHINOBI_OWL1, GREAT_SHINOBI_OWL2, GENICHIRO4, GREAT_SHINOBI_OWL12, ISSHIN4},
+
+				{R1, R1, R1, R1, R2},
+				{0, 0, 0, 0, ICHIMONJI3},
+
+				{R1, R1, R1, R2, R2},
+				{0, 0, 0, ISSHIN5, ICHIMONJI2},
+
+				{R1, R1, R2, R2, R2},
+				{0, 0, ICHIMONJI3, ISSHIN21, ISSHIN20}, 
+
+				{R1, R2, R2, R2, R2},
+				{0, GREAT_SHINOBI_OWL12, GENICHIRO2, GENICHIRO3, GREAT_SHINOBI_OWL9},
+    
+				{R2, R2, R2, R2, R2},
+				{GENICHIRO2, GENICHIRO3, ISSHIN9, GENICHIRO12, GREAT_SHINOBI_OWL15}
+
+			},
+
+			-- Combo of attacks after guarding/deflecting.
+			GUARD_COUNTER =
+			{
+				{R1, R1, R1},
+				{SEKIRO7, SEKIRO8, SEKIRO9},
+
+				{R2, R2, R2},
+				{FLOATING_PASSAGE5, FLOATING_PASSAGE6, ISSHIN17}
+
+			},
+
+			-- Combo of attacks upon enemy hit in guard stance.
+			-- See MOVESETS section of c0000.hks file for settings.
+			-- Similar to deflect, but you hold block, and attack on deflect timing.
+			GUARD_STANCE =
+			{
+				{R1, R1, R1, R1},
+				{SEKIRO7, SEKIRO8, GENICHIRO16, GENICHIRO10},
+
+				{R2, R2, R2},
+				{GREAT_SHINOBI_OWL17, LONE_SHADOW6, GREAT_SHINOBI_OWL9}
+				-- Awesome combo, credit goes to Aikeutuido for this one
+			},
+            -- Combo of attacks after dash/sprinting.
+			DASH_COMBO =
+			{
+				{R1, R1, R1},
+				{ISSHIN14, ISSHIN15, ISSHIN16},
+
+				{R2, R2},
+				{GREAT_SHINOBI_OWL4, GREAT_SHINOBI_OWL9}
+			},
+			-- Combo of attacks after rolling/dodging.
+			ROLL_COMBO =
+			{
+				{R1},
+				{ISSHIN31},
+
+				{R2},
+				{GENICHIRO19}
+			},
+
+			-- Combo of attacks after backstepping.
+			BACKSTEP_COMBO =
+			{
+				{R1},
+				{SEKIRO1},
+
+				{R2},
+				{GENICHIRO19}
+			},
+
+			-- Combo of attacks in stealth mode (crouching).
+			STEALTH_COMBO =
+			{
+				{R1},
+				{GENICHIRO19},
+
+				{R2},
+				{SHADOWN_RUSH1}
+			},
+
+			-- Super combos, same as above, but only active while in super mode
+			SUPER_NORMAL_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_GUARD_COUNTER =
+			{
+	            --Empty for now
+			},
+
+			SUPER_GUARD_STANCE =
+			{
+	            --Empty for now
+			},
+
+			SUPER_DASH_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_ROLL_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_BACKSTEP_COMBO =
+			{
+	            --Empty for now
+			},
+
+			SUPER_STEALTH_COMBO =
+			{
+	            --Empty for now
+			}
+		}
+	}
+},
