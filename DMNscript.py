@@ -497,6 +497,50 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
 # #                                           Regulation.bin Update Function                               # #
 ##############################################################################################################
 
+reg_bin_test = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation.bin"
+param_test_location = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update"
+witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
+
+#Working through function, this will get moved into function later
+base_dir = os.path.dirname(reg_bin_test)
+folder_name = os.path.basename(reg_bin_test).replace(".", "-")
+extracted_path = os.path.join(base_dir, folder_name)
+print(extracted_path)
+for filename in os.listdir(param_test_location):
+    param_file = filename[:-3] + 'param'
+    print(param_file)
+    csv_path = os.path.join(param_test_location, filename)
+    param_path = os.path.join(extracted_path, param_file)
+    print(csv_path)
+    print(param_path)
+
+    with open(csv_path, "r", encoding="utf-8") as file:
+        csv_content = file.readlines()
+    print(csv_content)
+
+def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path):
+    """
+    Updates the regulation.bin file by extracting XMLs and adding information from given CSVs.
+
+    1. Unpack regulation.bin
+    2. Loop through given CSVs:
+        A. Unpack .param of same name as CSV in regulation-bin
+        B. Read .xml of same name that was unpacked
+        C. Replace/Add information from CSV to the .xml, checking for duplicate ID
+        D. Sort .xml after information is added
+        E. Repack .xml to .param
+        F. Delete .param.bak (backup) and .xml to save space. 
+    3. After looping through CSVs, repack regulation-bin
+    4. Delete regulation-bin after repack, as it is now unnecessary clutter.
+    
+    Note: Chose to leave regulation.bin's backup, gives user an alternative backup if update isn't working. 
+          Deleted the param.bak and not this one because the regulation.bin backup backs that up already.
+    
+    """
+    return
+
+#updateRegBinfile(reg_bin_test, param_test_location, witchybnd_test)
+
 #############
 # Section 8 #
 ##############################################################################################################
