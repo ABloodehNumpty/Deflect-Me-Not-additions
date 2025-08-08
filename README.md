@@ -8,3 +8,5 @@ Super Combos function lua file is a function change that allows for dedicated co
 DMNscript.py is a WIP python script that allows me to automatically apply updates to DMN for my updating needs.
 
 There is a video example provided as well as patch notes that show the EXP37.1 update. EXP37.2 is in progress, working on the automation script.
+
+There is an example moveset provided that has instructions designed to aid users in building their own moveset (I made this and provided it in the mod authors server)
