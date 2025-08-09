@@ -12,7 +12,8 @@ https://www.nexusmods.com/eldenring/mods/4138?tab=description
 import subprocess
 import shutil
 import os
-
+import csv
+import xml.etree.ElementTree as ET
 
 #############
 # Section 1 #
@@ -516,6 +517,7 @@ for filename in os.listdir(param_test_location):
 
     with open(csv_path, "r", encoding="utf-8") as file:
         csv_content = file.readlines()
+        reader = csv.DictReader(file)
     print(csv_content)
 
 def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path):
@@ -523,7 +525,7 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
     Updates the regulation.bin file by extracting XMLs and adding information from given CSVs.
 
     1. Unpack regulation.bin
-    2. Loop through given CSVs:
+    2. Loop through given update CSVs:
         A. Unpack .param of same name as CSV in regulation-bin
         B. Read .xml of same name that was unpacked
         C. Replace/Add information from CSV to the .xml, checking for duplicate ID
@@ -537,6 +539,63 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
           Deleted the param.bak and not this one because the regulation.bin backup backs that up already.
     
     """
+    #Establish main directories
+    base_dir = os.path.dirname(regulation_bin_path)
+    folder_name = os.path.basename(regulation_bin_path).replace(".", "-")
+    extracted_path = os.path.join(base_dir, folder_name)
+    #Unpack regulation.bin
+    subprocess.run([witchybnd_path, regulation_bin_path], check=True)
+
+    #Loop through given param updates
+    for filename in os.listdir(param_update_location):
+        #Get directories for specific params files/extracted files
+        param_file = filename[:-3] + 'param'
+        xml_file = param_file + '.xml' #It merely appends .xml when Witchybnd extracts it (.param.xml)
+        backup_file = param_file + '.bak'
+        csv_path = os.path.join(param_update_location, filename)
+        param_path = os.path.join(extracted_path, param_file)
+        xml_path = os.path.join(extracted_path, xml_file)
+        backup_path = os.path.join(extracted_path, backup_file)
+        #Unpack .param to .param.xml
+        subprocess.run([witchybnd_path, param_path], check=True)
+
+        #Run update_param to add information from csv to the xml (Also sorting the xml)
+        update_param(xml_path, csv_path)
+
+        #Repack .param.xml to .param
+        subprocess.run([witchybnd_path, xml_path], check=True)
+
+        #Delete .param.xml file
+        if os.path.exists(xml_path):
+            os.remove(xml_path)
+            print(f"Deleted: {xml_file}")
+        else:
+            print(f"File not found: {xml_file}")
+        #Delete .param.bak file
+        if os.path.exists(backup_path):
+            os.remove(backup_path)
+            print(f"Deleted: {backup_file}")
+        else:
+            print(f"File not found: {backup_file}")
+    
+    #Repack regulation-bin
+    subprocess.run([witchybnd_path, extracted_path], check=True)
+
+    #Delete regulation-bin, as is now clutter
+    if os.path.exists(extracted_path):
+        os.remove(extracted_path)
+        print(f"Deleted folder: {extracted_path}")
+    else:
+        print(f"Folder not found: {extracted_path}")
+
+    return
+
+def update_param(xml_path, csv_path):
+    """
+    Updates a WitchyBND exported .param.xml with data from a CSV file.
+    Matching is done by 'ID' (CSV) to 'id' (XML row attribute). (WIP)
+    """
+
     return
 
 #updateRegBinfile(reg_bin_test, param_test_location, witchybnd_test)
