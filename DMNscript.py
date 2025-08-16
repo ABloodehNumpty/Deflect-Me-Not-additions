@@ -14,6 +14,8 @@ import shutil
 import os
 import csv
 import xml.etree.ElementTree as ET
+import time
+
 
 #############
 # Section 1 #
@@ -340,7 +342,14 @@ def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
 
     #State that the update is complete.
     print(f"c0000.anibnd.dcx updated with new a66.tae")
-
+    
+    #Delete the unpacked folder, as it is now redundant clutter
+    if os.path.exists(extracted_dir):
+        shutil.rmtree(extracted_dir)
+        print(f"Deleted unpacked folder: {extracted_dir}")
+    else:
+        print(f"Unpacked folder not found: {extracted_dir}")
+        
 #replace_a66_tae(test_tae_update_path, new_tae_path, witchybnd_path)
 
 #############
@@ -384,6 +393,13 @@ def replace_sfx_effects(base_path, effects_dir, witchybnd_path):
     #Repack
     subprocess.run([witchybnd_path, extracted_dir], check=True)
     print("sfxbnd_commoneffects_dlc02.ffxbnd.dcx update complete.")
+    
+    #Delete the unpacked folder, as it is now redundant clutter
+    if os.path.exists(extracted_dir):
+        shutil.rmtree(extracted_dir)
+        print(f"Deleted unpacked folder: {extracted_dir}")
+    else:
+        print(f"Unpacked folder not found: {extracted_dir}")
 
 #replace_sfx_effects(test_sfx_file, test_EffectsToBeAdded, witchybnd_path)
 
@@ -483,10 +499,10 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
     
     #Delete the unpacked folder, as it is now redundant clutter
     if os.path.exists(extracted_path):
-        os.remove(extracted_path)
+        shutil.rmtree(extracted_path)
         print(f"Deleted unpacked folder: {extracted_path}")
     else:
-        print(f"c0000.xml file not found: {extracted_path}")
+        print(f"Unpacked folder not found: {extracted_path}")
 
     print("[6/6] Behavior file updated successfully.")
     
@@ -502,23 +518,13 @@ reg_bin_test = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation
 param_test_location = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update"
 witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 
-#Working through function, this will get moved into function later
-base_dir = os.path.dirname(reg_bin_test)
-folder_name = os.path.basename(reg_bin_test).replace(".", "-")
-extracted_path = os.path.join(base_dir, folder_name)
-print(extracted_path)
-for filename in os.listdir(param_test_location):
-    param_file = filename[:-3] + 'param'
-    print(param_file)
-    csv_path = os.path.join(param_test_location, filename)
-    param_path = os.path.join(extracted_path, param_file)
-    print(csv_path)
-    print(param_path)
-
-    with open(csv_path, "r", encoding="utf-8") as file:
-        csv_content = file.readlines()
-        reader = csv.DictReader(file)
-    print(csv_content)
+subprocess.run([witchybnd_test, "-u", reg_bin_test], check=True)
+#Delete regulation-bin, as is now clutter
+if os.path.exists("C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation-bin"):
+    shutil.rmtree("C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation-bin")
+    print(f"Deleted folder: regulation-bin")
+else:
+    print(f"Folder not found: regulation-bin")
 
 def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path):
     """
@@ -544,8 +550,8 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
     folder_name = os.path.basename(regulation_bin_path).replace(".", "-")
     extracted_path = os.path.join(base_dir, folder_name)
     #Unpack regulation.bin
-    subprocess.run([witchybnd_path, regulation_bin_path], check=True)
-
+    subprocess.run([witchybnd_path, "-u", regulation_bin_path], check=True)
+    time.sleep(0.3)
     #Loop through given param updates
     for filename in os.listdir(param_update_location):
         #Get directories for specific params files/extracted files
@@ -557,13 +563,19 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
         xml_path = os.path.join(extracted_path, xml_file)
         backup_path = os.path.join(extracted_path, backup_file)
         #Unpack .param to .param.xml
+        #subprocess.run([witchybnd_path, "-u", param_path], check=True)
         subprocess.run([witchybnd_path, param_path], check=True)
-
+        time.sleep(0.3)
         #Run update_param to add information from csv to the xml (Also sorting the xml)
         update_param(xml_path, csv_path)
-
+        
         #Repack .param.xml to .param
+        #subprocess.run([witchybnd_path, "-p", xml_path], check=True)
         subprocess.run([witchybnd_path, xml_path], check=True)
+        #Short delay to ensure repacking before deletion
+        time.sleep(0.5)
+        #State file has been updated
+        print(f"Updated: {param_file}")
 
         #Delete .param.xml file
         if os.path.exists(xml_path):
@@ -577,26 +589,164 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
             print(f"Deleted: {backup_file}")
         else:
             print(f"File not found: {backup_file}")
-    
+        
+          
+    #State all files have been updated
+    print("All param updates complete. Repacking...")
     #Repack regulation-bin
-    subprocess.run([witchybnd_path, extracted_path], check=True)
+    subprocess.run([witchybnd_path, "-p", extracted_path], check=True)
+    print("regulation.bin update complete.")
 
     #Delete regulation-bin, as is now clutter
     if os.path.exists(extracted_path):
-        os.remove(extracted_path)
+        shutil.rmtree(extracted_path)
         print(f"Deleted folder: {extracted_path}")
     else:
         print(f"Folder not found: {extracted_path}")
 
-    return
-
 def update_param(xml_path, csv_path):
+    """
+    Update a WitchyBND-exported .param.xml from a CSV.
+
+    - Matches CSV 'ID' -> XML 'id'
+    - Ignores CSV-only columns (e.g., 'Name')
+    - Filters out blank/None CSV headers (prevents writing ="" attributes)
+    - Only writes attributes defined in the XML <fields> schema (+ 'id')
+    """
+
+    # Parse XML
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+
+    rows_elem = root.find("rows")
+    if rows_elem is None:
+        raise ValueError(f"No <rows> section found in {xml_path}")
+
+    # Collect allowed field names from the schema so we don't inject junk columns
+    allowed = {"id"}
+    fields_elem = root.find("fields")
+    if fields_elem is not None:
+        for fld in fields_elem.findall("field"):
+            name = fld.get("name")
+            if name:
+                allowed.add(name)
+
+    # Build lookup for existing rows
+    existing = {}
+    for r in rows_elem.findall("row"):
+        rid = r.get("id")
+        if rid is not None:
+            existing[rid] = r
+
+    # Read CSV
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f, restval="", skipinitialspace=True)
+
+        # Clean fieldnames: drop empty/whitespace headers (handles trailing comma)
+        if reader.fieldnames:
+            reader.fieldnames = [h.strip() for h in reader.fieldnames if h and h.strip()]
+
+        for raw in reader:
+            # Drop any keys that are None or blank after stripping
+            row = {}
+            for k, v in raw.items():
+                if k is None:
+                    continue
+                k = k.strip()
+                if not k:
+                    continue
+                row[k] = v.strip() if isinstance(v, str) else ""
+
+            # Need an ID
+            if "ID" not in row:
+                continue
+            row_id = row.pop("ID").strip()
+            if not row_id:
+                continue
+
+            # CSV-only columns we don't want in XML
+            row.pop("Name", None)
+
+            # Keep only attributes defined in schema
+            attrs = {"id": row_id}
+            for k, v in row.items():
+                if k in allowed:
+                    attrs[k] = v
+
+            # Update or insert
+            if row_id in existing:
+                elem = existing[row_id]
+                for k, v in attrs.items():
+                    elem.set(k, v)
+            else:
+                new_elem = ET.Element("row", attrs)
+                rows_elem.append(new_elem)
+                existing[row_id] = new_elem
+
+    # Sort rows by numeric id if possible
+    rows = rows_elem.findall("row")
+    try:
+        rows.sort(key=lambda e: int(e.get("id")))
+    except Exception:
+        rows.sort(key=lambda e: e.get("id") or "")
+    rows_elem[:] = rows
+
+    # Pretty print (Python 3.9+)
+    try:
+        ET.indent(tree, space="  ")
+    except AttributeError:
+        pass
+
+    tree.write(xml_path, encoding="utf-8", xml_declaration=True)
+
+def update_param_old(xml_path, csv_path):
     """
     Updates a WitchyBND exported .param.xml with data from a CSV file.
     Matching is done by 'ID' (CSV) to 'id' (XML row attribute). (WIP)
     """
 
-    return
+    # --- Load the XML ---
+    tree = ET.parse(xml_path)
+    root = tree.getroot()
+
+    # Find the <rows> container
+    rows_elem = root.find("rows")
+    if rows_elem is None:
+        raise ValueError(f"No <rows> section found in {xml_path}")
+
+    # Build a lookup of existing rows by id
+    existing_rows = {row.get("id"): row for row in rows_elem.findall("row")}
+
+    # --- Read the CSV ---
+    with open(csv_path, newline='', encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for csv_row in reader:
+            row_id = csv_row["ID"]
+
+            # Ensure all values are strings, replace None with ""
+            attr_map = {k: ("" if v is None else str(v)) for k, v in csv_row.items()}
+
+            # Drop CSV-only fields that don't exist in XML
+            attr_map.pop("Name", None)
+
+            # Rename 'ID' key to 'id'
+            attr_map["id"] = attr_map.pop("ID")
+
+            if row_id in existing_rows:
+                # Update existing row
+                for attr, val in attr_map.items():
+                    existing_rows[row_id].set(attr, val)
+            else:
+                # Create a new row
+                new_row = ET.Element("row", attr_map)
+                rows_elem.append(new_row)
+
+    # --- Sort rows ---
+    rows_sorted = sorted(rows_elem.findall("row"), key=lambda r: int(r.get("id")))
+    rows_elem[:] = rows_sorted
+
+    # --- Save ---
+    tree.write(xml_path, encoding="utf-8", xml_declaration=True)
 
 #updateRegBinfile(reg_bin_test, param_test_location, witchybnd_test)
 

@@ -29,4 +29,11 @@ Future Ideas/Projects:
 
 37.3: Adding a lite (and universal) version of super moves where it just applies a basic special effect (can use more than fire) during super mode. This would apply to more than just specific edited moves and would be overall a more refined method.
 
+Later (whether its 37.4/.5/onwards) can try designing a way of assigning the effects to certain moves, to allow for effect combos. Bare minimum, make it so combos starting with R1 have a different element to combos starting with R2. Lots of ways I could design this. The PERFECT way to do this would likely be something like:
+{R1, R1, R1},
+{Move1, Move2, Move3},
+{Fire, Frost, Lightning}
+
+Makes a combo where Move1 is fire, Move2 is frost, and move3 is lightning, allowing a mix-and-match with elements.
+
 37.4: Mist Raven combo chainer effect. Somehow (don't know yet) copy and edit the Great Shinobi Owl #15 move to take the teleporting part of the move without the attack. Turn this into a move on its own, and use it as a combo cancel (either make it restart combo or continue the previous combo, or have its own combo system). The idea being to use it as a stylish dodge or distance closer for that true Sekiro customizable experience.

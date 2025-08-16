@@ -7,6 +7,8 @@ SpEffectParam section: All but 300000001 used in release version
 
 (Note to future: These IDs likely won't match up in release version, I will write a release version once I've chosen the IDs that have the least conflict with other merges)
 
+(Note to past: The IDs chosen for Bullet, BehaviorParam_PC and SpEffectParam are: 600000001 - 600000011, 200000001 - 200000010 and 300000001 - 300000003)
+
 Bullet: 
 Numpty FOTRedmanes Damage 400000001
 Numpty FOTRedmanes 400000002
