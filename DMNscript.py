@@ -349,7 +349,7 @@ def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
         print(f"Deleted unpacked folder: {extracted_dir}")
     else:
         print(f"Unpacked folder not found: {extracted_dir}")
-        
+
 #replace_a66_tae(test_tae_update_path, new_tae_path, witchybnd_path)
 
 #############
@@ -517,63 +517,70 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
 reg_bin_test = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation.bin"
 param_test_location = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update"
 witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
+#Not the classiest method probably, but I keep the CSVs incorporated for when I can work out the XML handling.
+#This also is nicer than having to copy, paste, copy, paste... all the IDs into a list, just use the CSVs to handle the ID fetching.
+update_source = "C:\\Desktop\\Mods\\Convergence\\ConvergenceER\\mod\\regulation.bin"
 
-subprocess.run([witchybnd_test, "-u", reg_bin_test], check=True)
-#Delete regulation-bin, as is now clutter
-if os.path.exists("C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation-bin"):
-    shutil.rmtree("C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation-bin")
-    print(f"Deleted folder: regulation-bin")
-else:
-    print(f"Folder not found: regulation-bin")
-
-def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path):
+def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_update_location, witchybnd_path):
     """
     Updates the regulation.bin file by extracting XMLs and adding information from given CSVs.
 
-    1. Unpack regulation.bin
+    1. Unpack regulation.bin and source regulation.bin (one with the updated lines in it)
     2. Loop through given update CSVs:
-        A. Unpack .param of same name as CSV in regulation-bin
-        B. Read .xml of same name that was unpacked
-        C. Replace/Add information from CSV to the .xml, checking for duplicate ID
-        D. Sort .xml after information is added
-        E. Repack .xml to .param
-        F. Delete .param.bak (backup) and .xml to save space. 
-    3. After looping through CSVs, repack regulation-bin
+        A. Unpack .param of same name as CSV in both regulation-bin's
+        B. Read CSV and get the id values of lines being added as a list
+        C. Read .xml of same name that was unpacked from source reg-bin
+        D. Copy the lines of each id to a list
+        E. Write lines to and sort .xml being updated.
+        F. Delete source .xml as it is now finished with.
+        G. Repack .xml to .param
+        H. Delete .param.bak (backup) and .xml to save space. 
+    3. After looping through CSVs, repack regulation-bin and delete source regulation-bin.
     4. Delete regulation-bin after repack, as it is now unnecessary clutter.
     
-    Note: Chose to leave regulation.bin's backup, gives user an alternative backup if update isn't working. 
+    Note: Chose to leave regulation.bin's backup, gives user a backup if update isn't working. 
           Deleted the param.bak and not this one because the regulation.bin backup backs that up already.
     
     """
     #Establish main directories
     base_dir = os.path.dirname(regulation_bin_path)
+    source_dir = os.path.dirname(source_regulation_bin_path)
     folder_name = os.path.basename(regulation_bin_path).replace(".", "-")
+    source_folder_name = os.path.basename(source_regulation_bin_path).replace(".", "-")
     extracted_path = os.path.join(base_dir, folder_name)
-    #Unpack regulation.bin
+    source_extracted_path = os.path.join(source_dir, source_folder_name)
+    #Unpack regulation.bin for update, and the update source regulation.bin
     subprocess.run([witchybnd_path, "-u", regulation_bin_path], check=True)
-    time.sleep(0.3)
+    subprocess.run([witchybnd_path, "-u", source_regulation_bin_path], check=True)
+    time.sleep(0.1)
     #Loop through given param updates
     for filename in os.listdir(param_update_location):
         #Get directories for specific params files/extracted files
         param_file = filename[:-3] + 'param'
         xml_file = param_file + '.xml' #It merely appends .xml when Witchybnd extracts it (.param.xml)
         backup_file = param_file + '.bak'
+        #File paths within the extracted folder
         csv_path = os.path.join(param_update_location, filename)
         param_path = os.path.join(extracted_path, param_file)
         xml_path = os.path.join(extracted_path, xml_file)
         backup_path = os.path.join(extracted_path, backup_file)
+        #Source paths within the source extracted folder
+        source_param_path = os.path.join(source_extracted_path, filename)
+        source_xml_path = os.path.join(source_extracted_path, xml_file)
+
         #Unpack .param to .param.xml
-        #subprocess.run([witchybnd_path, "-u", param_path], check=True)
         subprocess.run([witchybnd_path, param_path], check=True)
-        time.sleep(0.3)
+        #Unpack source .param to source .param.xml
+        subprocess.run([witchybnd_path, source_param_path], check=True)
+        time.sleep(0.1)
         #Run update_param to add information from csv to the xml (Also sorting the xml)
-        update_param(xml_path, csv_path)
+        update_param(xml_path, source_xml_path, csv_path)
         
         #Repack .param.xml to .param
         #subprocess.run([witchybnd_path, "-p", xml_path], check=True)
         subprocess.run([witchybnd_path, xml_path], check=True)
         #Short delay to ensure repacking before deletion
-        time.sleep(0.5)
+        time.sleep(0.1)
         #State file has been updated
         print(f"Updated: {param_file}")
 
@@ -583,6 +590,14 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
             print(f"Deleted: {xml_file}")
         else:
             print(f"File not found: {xml_file}")
+        
+        #Delete source .param.xml file. This happens later anyways when source folder gets deleted, since it does not get repacked, but better to reduce any clutter asap.
+        if os.path.exists(source_xml_path):
+            os.remove(source_xml_path)
+            print(f"Deleted at source folder: {xml_file}")
+        else:
+            print(f"File not found at source solder: {xml_file}")
+
         #Delete .param.bak file
         if os.path.exists(backup_path):
             os.remove(backup_path)
@@ -590,27 +605,44 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
         else:
             print(f"File not found: {backup_file}")
         
-          
+        
     #State all files have been updated
     print("All param updates complete. Repacking...")
     #Repack regulation-bin
     subprocess.run([witchybnd_path, "-p", extracted_path], check=True)
     print("regulation.bin update complete.")
 
+    #Delete source regulation-bin, as is now clutter
+    if os.path.exists(source_extracted_path):
+        shutil.rmtree(source_extracted_path)
+        print(f"Deleted folder: {source_extracted_path}")
+    else:
+        print(f"Folder not found: {source_extracted_path}")
     #Delete regulation-bin, as is now clutter
     if os.path.exists(extracted_path):
         shutil.rmtree(extracted_path)
         print(f"Deleted folder: {extracted_path}")
     else:
         print(f"Folder not found: {extracted_path}")
+    
+    print("Clutter deleted! All done!")
 
-def update_param(xml_path, csv_path):
+def update_param(xml_path, source_xml_path, csv_path):
+    """
+        1. Read CSV and get the id values of lines being added as a list
+        2. Read source .xml
+        3. Copy the lines of related to each id to a list
+        4. Write lines to and sort .xml being updated.
+    """
+    return
+
+def update_param_xml_method(xml_path, csv_path):
     """
     Update a WitchyBND-exported .param.xml from a CSV.
 
     - Matches CSV 'ID' -> XML 'id'
     - Ignores CSV-only columns (e.g., 'Name')
-    - Filters out blank/None CSV headers (prevents writing ="" attributes)
+    - Filters out blank/None/NULL values (prevents writing ="" attributes)
     - Only writes attributes defined in the XML <fields> schema (+ 'id')
     """
 
@@ -622,7 +654,7 @@ def update_param(xml_path, csv_path):
     if rows_elem is None:
         raise ValueError(f"No <rows> section found in {xml_path}")
 
-    # Collect allowed field names from the schema so we don't inject junk columns
+    # Collect allowed field names from schema
     allowed = {"id"}
     fields_elem = root.find("fields")
     if fields_elem is not None:
@@ -630,41 +662,42 @@ def update_param(xml_path, csv_path):
             name = fld.get("name")
             if name:
                 allowed.add(name)
-
     # Build lookup for existing rows
-    existing = {}
-    for r in rows_elem.findall("row"):
-        rid = r.get("id")
-        if rid is not None:
-            existing[rid] = r
-
+    existing = {r.get("id"): r for r in rows_elem.findall("row") if r.get("id")}
+   
     # Read CSV
     with open(csv_path, newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f, restval="", skipinitialspace=True)
-
-        # Clean fieldnames: drop empty/whitespace headers (handles trailing comma)
+        # Clean fieldnames (drop blanks/trailing commas)
         if reader.fieldnames:
             reader.fieldnames = [h.strip() for h in reader.fieldnames if h and h.strip()]
 
         for raw in reader:
-            # Drop any keys that are None or blank after stripping
             row = {}
             for k, v in raw.items():
-                if k is None:
+                if not k or not k.strip():
                     continue
                 k = k.strip()
-                if not k:
+                if v is None:
                     continue
-                row[k] = v.strip() if isinstance(v, str) else ""
+                v = v.strip() if isinstance(v, str) else str(v)
 
-            # Need an ID
+                # Skip empty / placeholder values
+                if v in ("", "NULL", "None", "NaN", "nan"):
+                    continue
+
+                # Strip null/non-printable chars
+                v = "".join(ch for ch in v if ch.isprintable())
+
+                row[k] = v
+
             if "ID" not in row:
                 continue
             row_id = row.pop("ID").strip()
             if not row_id:
                 continue
 
-            # CSV-only columns we don't want in XML
+            # Drop CSV-only stuff
             row.pop("Name", None)
 
             # Keep only attributes defined in schema
@@ -682,8 +715,8 @@ def update_param(xml_path, csv_path):
                 new_elem = ET.Element("row", attrs)
                 rows_elem.append(new_elem)
                 existing[row_id] = new_elem
-
-    # Sort rows by numeric id if possible
+            
+    # Sort rows numerically if possible
     rows = rows_elem.findall("row")
     try:
         rows.sort(key=lambda e: int(e.get("id")))
@@ -691,62 +724,24 @@ def update_param(xml_path, csv_path):
         rows.sort(key=lambda e: e.get("id") or "")
     rows_elem[:] = rows
 
-    # Pretty print (Python 3.9+)
     try:
         ET.indent(tree, space="  ")
     except AttributeError:
         pass
 
+    # Final cleanup: strip bad or empty attributes before saving
+    for row in rows_elem.findall("row"):
+        bad_keys = []
+        for k, v in row.attrib.items():
+            if v is None or v.strip() == "" or v.lower() in ("null", "none", "nan"):
+                bad_keys.append(k)
+            elif any(ord(ch) < 32 for ch in v):  # control chars
+                bad_keys.append(k)
+        for k in bad_keys:
+            print(f"[CLEANUP] Dropping {k}='{row.attrib[k]}' in row id={row.get('id')}")
+            del row.attrib[k]
     tree.write(xml_path, encoding="utf-8", xml_declaration=True)
 
-def update_param_old(xml_path, csv_path):
-    """
-    Updates a WitchyBND exported .param.xml with data from a CSV file.
-    Matching is done by 'ID' (CSV) to 'id' (XML row attribute). (WIP)
-    """
-
-    # --- Load the XML ---
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-
-    # Find the <rows> container
-    rows_elem = root.find("rows")
-    if rows_elem is None:
-        raise ValueError(f"No <rows> section found in {xml_path}")
-
-    # Build a lookup of existing rows by id
-    existing_rows = {row.get("id"): row for row in rows_elem.findall("row")}
-
-    # --- Read the CSV ---
-    with open(csv_path, newline='', encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for csv_row in reader:
-            row_id = csv_row["ID"]
-
-            # Ensure all values are strings, replace None with ""
-            attr_map = {k: ("" if v is None else str(v)) for k, v in csv_row.items()}
-
-            # Drop CSV-only fields that don't exist in XML
-            attr_map.pop("Name", None)
-
-            # Rename 'ID' key to 'id'
-            attr_map["id"] = attr_map.pop("ID")
-
-            if row_id in existing_rows:
-                # Update existing row
-                for attr, val in attr_map.items():
-                    existing_rows[row_id].set(attr, val)
-            else:
-                # Create a new row
-                new_row = ET.Element("row", attr_map)
-                rows_elem.append(new_row)
-
-    # --- Sort rows ---
-    rows_sorted = sorted(rows_elem.findall("row"), key=lambda r: int(r.get("id")))
-    rows_elem[:] = rows_sorted
-
-    # --- Save ---
-    tree.write(xml_path, encoding="utf-8", xml_declaration=True)
 
 #updateRegBinfile(reg_bin_test, param_test_location, witchybnd_test)
 
@@ -917,4 +912,3 @@ sfx_update = os.path.join(updated_files_folder, "sfx update\\effects-to-be-added
 #Magic button, only run if certain...
 
 ###updateMods(DMN_variants_to_update, True, True, True, True, True, True)
-
