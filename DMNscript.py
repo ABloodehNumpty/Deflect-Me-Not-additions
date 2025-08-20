@@ -521,6 +521,23 @@ witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 #This also is nicer than having to copy, paste, copy, paste... all the IDs into a list, just use the CSVs to handle the ID fetching.
 update_source = "C:\\Desktop\\Mods\\Convergence\\ConvergenceER\\mod\\regulation.bin"
 
+#Working example of logic being used, could use XML parsing but avoiding it for now
+with open("C:\Desktop\BehaviorParam_PC.param.xml", "r", encoding="utf-8") as file:
+        xml_content = file.readlines()
+csv_ids = ['700000157', '900030111']
+start_index = None
+for index, line in enumerate(xml_content):
+    if line == "<rows>\n":
+        start_index = index
+    elif line == "</rows>\n": 
+        end_index = index
+        break
+    if start_index != None:
+        for id in csv_ids:
+            if f'<row id="{id}"' in line:
+                print(line)
+
+
 def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_update_location, witchybnd_path):
     """
     Updates the regulation.bin file by extracting XMLs and adding information from given CSVs.
