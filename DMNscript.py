@@ -521,10 +521,26 @@ witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 #This also is nicer than having to copy, paste, copy, paste... all the IDs into a list, just use the CSVs to handle the ID fetching.
 update_source = "C:\\Desktop\\Mods\\Convergence\\ConvergenceER\\mod\\regulation.bin"
 
+
+
+#Working logic of getting the IDs from the CSV
+with open("C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update\\BehaviorParam_PC.csv", "r", encoding="utf-8") as csv_file:
+    csv_contents = csv_file.readlines()
+#Ensure choosing IDs index correctly, might change in future CSVs, so better to be fluid than assuming 0 index always
+for i, value in enumerate(csv_contents[0].split(',')):
+    if value == "ID":
+        id_index = i
+id_list = []
+for entry in csv_contents[1:]:
+    entry_list = entry.split(',')
+    id_list.append(entry_list[id_index])
+print(id_list)
+
 #Working example of logic being used, could use XML parsing but avoiding it for now
+#Collect end_index as a point for where to insert new entries
 with open("C:\Desktop\BehaviorParam_PC.param.xml", "r", encoding="utf-8") as file:
         xml_content = file.readlines()
-csv_ids = ['700000157', '900030111']
+
 start_index = None
 for index, line in enumerate(xml_content):
     if line == "<rows>\n":
@@ -533,10 +549,9 @@ for index, line in enumerate(xml_content):
         end_index = index
         break
     if start_index != None:
-        for id in csv_ids:
+        for id in id_list:
             if f'<row id="{id}"' in line:
                 print(line)
-
 
 def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_update_location, witchybnd_path):
     """
