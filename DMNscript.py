@@ -521,38 +521,6 @@ witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 #This also is nicer than having to copy, paste, copy, paste... all the IDs into a list, just use the CSVs to handle the ID fetching.
 update_source = "C:\\Desktop\\Mods\\Convergence\\ConvergenceER\\mod\\regulation.bin"
 
-
-
-#Working logic of getting the IDs from the CSV
-with open("C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update\\BehaviorParam_PC.csv", "r", encoding="utf-8") as csv_file:
-    csv_contents = csv_file.readlines()
-#Ensure choosing IDs index correctly, might change in future CSVs, so better to be fluid than assuming 0 index always
-for i, value in enumerate(csv_contents[0].split(',')):
-    if value == "ID":
-        id_index = i
-id_list = []
-for entry in csv_contents[1:]:
-    entry_list = entry.split(',')
-    id_list.append(entry_list[id_index])
-print(id_list)
-
-#Working example of logic being used, could use XML parsing but avoiding it for now
-#Collect end_index as a point for where to insert new entries
-with open("C:\Desktop\BehaviorParam_PC.param.xml", "r", encoding="utf-8") as file:
-        xml_content = file.readlines()
-
-start_index = None
-for index, line in enumerate(xml_content):
-    if line == "<rows>\n":
-        start_index = index
-    elif line == "</rows>\n": 
-        end_index = index
-        break
-    if start_index != None:
-        for id in id_list:
-            if f'<row id="{id}"' in line:
-                print(line)
-
 def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_update_location, witchybnd_path):
     """
     Updates the regulation.bin file by extracting XMLs and adding information from given CSVs.
@@ -666,115 +634,70 @@ def update_param(xml_path, source_xml_path, csv_path):
         3. Copy the lines of related to each id to a list
         4. Write lines to and sort .xml being updated.
     """
-    return
+    #Working logic of getting the IDs from the CSV
+    #Open and read CSV file contents
+    with open(csv_path, "r", encoding="utf-8") as csv_file:
+        csv_contents = csv_file.readlines()
+    #Ensure choosing IDs index correctly, might change in future CSVs, so better to be fluid than assuming 0 index always
+    for i, value in enumerate(csv_contents[0].split(',')):
+        if value == "ID":
+            id_index = i
+    #Collect IDs to parse for in xml files
+    id_list = []
+    for entry in csv_contents[1:]:
+        entry_list = entry.split(',')
+        id_list.append(entry_list[id_index])
+    #print(id_list)
 
-def update_param_xml_method(xml_path, csv_path):
-    """
-    Update a WitchyBND-exported .param.xml from a CSV.
-
-    - Matches CSV 'ID' -> XML 'id'
-    - Ignores CSV-only columns (e.g., 'Name')
-    - Filters out blank/None/NULL values (prevents writing ="" attributes)
-    - Only writes attributes defined in the XML <fields> schema (+ 'id')
-    """
-
-    # Parse XML
-    tree = ET.parse(xml_path)
-    root = tree.getroot()
-
-    rows_elem = root.find("rows")
-    if rows_elem is None:
-        raise ValueError(f"No <rows> section found in {xml_path}")
-
-    # Collect allowed field names from schema
-    allowed = {"id"}
-    fields_elem = root.find("fields")
-    if fields_elem is not None:
-        for fld in fields_elem.findall("field"):
-            name = fld.get("name")
-            if name:
-                allowed.add(name)
-    # Build lookup for existing rows
-    existing = {r.get("id"): r for r in rows_elem.findall("row") if r.get("id")}
+    #Open source xml file and read contents
+    with open(source_xml_path, "r", encoding="utf-8") as source_xml:
+        source_xml_content = source_xml.readlines()
+    #Initialize xml parse
+    start_index = None
+    xml_lines = []
+    for index, line in enumerate(source_xml_content):
+        #Search for when rows begins
+        if line == "<rows>\n":
+            start_index = index
+        #End early when rows ends
+        elif line == "</rows>\n": 
+            break
+        #Check lines to see if they contain ID in CSV, if so, copy line to list
+        if start_index != None:
+            for id in id_list:
+                if f'<row id="{id}"' in line:
+                    xml_lines.append(line)
+    
+    #Open destination xml file and read contents
+    with open(xml_path, "r", encoding="utf-8") as xml:
+        xml_content = xml.readlines()
+    #Initialize xml parse
+    for index, line in enumerate(xml_content):
+        #Search for when rows begins
+        if line == "<rows>\n":
+            start_index = index
+        
+        elif line == "</rows>\n":
+            end_index = index
+            break
    
-    # Read CSV
-    with open(csv_path, newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f, restval="", skipinitialspace=True)
-        # Clean fieldnames (drop blanks/trailing commas)
-        if reader.fieldnames:
-            reader.fieldnames = [h.strip() for h in reader.fieldnames if h and h.strip()]
+    #Add source xml lines to row lines
+    row_lines = xml_lines + xml_content[start_index+1:end_index]
+    #Function to extract id number from a row string
+    def get_id(line):
+        start = line.find('id="') + 4
+        end = line.find('"', start)
+        return int(line[start:end])
 
-        for raw in reader:
-            row = {}
-            for k, v in raw.items():
-                if not k or not k.strip():
-                    continue
-                k = k.strip()
-                if v is None:
-                    continue
-                v = v.strip() if isinstance(v, str) else str(v)
+    #Sort rows by extracted ID
+    sorted_rows = sorted(row_lines, key=get_id)
 
-                # Skip empty / placeholder values
-                if v in ("", "NULL", "None", "NaN", "nan"):
-                    continue
+    #Rebuild full list of xml_content with now new and sorted IDs
+    sorted_xml_content = [xml_content[:start_index+1]] + sorted_rows + [xml_content[end_index:]]
 
-                # Strip null/non-printable chars
-                v = "".join(ch for ch in v if ch.isprintable())
-
-                row[k] = v
-
-            if "ID" not in row:
-                continue
-            row_id = row.pop("ID").strip()
-            if not row_id:
-                continue
-
-            # Drop CSV-only stuff
-            row.pop("Name", None)
-
-            # Keep only attributes defined in schema
-            attrs = {"id": row_id}
-            for k, v in row.items():
-                if k in allowed:
-                    attrs[k] = v
-
-            # Update or insert
-            if row_id in existing:
-                elem = existing[row_id]
-                for k, v in attrs.items():
-                    elem.set(k, v)
-            else:
-                new_elem = ET.Element("row", attrs)
-                rows_elem.append(new_elem)
-                existing[row_id] = new_elem
-            
-    # Sort rows numerically if possible
-    rows = rows_elem.findall("row")
-    try:
-        rows.sort(key=lambda e: int(e.get("id")))
-    except Exception:
-        rows.sort(key=lambda e: e.get("id") or "")
-    rows_elem[:] = rows
-
-    try:
-        ET.indent(tree, space="  ")
-    except AttributeError:
-        pass
-
-    # Final cleanup: strip bad or empty attributes before saving
-    for row in rows_elem.findall("row"):
-        bad_keys = []
-        for k, v in row.attrib.items():
-            if v is None or v.strip() == "" or v.lower() in ("null", "none", "nan"):
-                bad_keys.append(k)
-            elif any(ord(ch) < 32 for ch in v):  # control chars
-                bad_keys.append(k)
-        for k in bad_keys:
-            print(f"[CLEANUP] Dropping {k}='{row.attrib[k]}' in row id={row.get('id')}")
-            del row.attrib[k]
-    tree.write(xml_path, encoding="utf-8", xml_declaration=True)
-
-
+    with open(xml_path, "w", encoding="utf-8") as write_xml:
+        write_xml.writelines(sorted_xml_content)
+        
 #updateRegBinfile(reg_bin_test, param_test_location, witchybnd_test)
 
 #############
@@ -801,6 +724,12 @@ witchy_bnd_path = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 #Paths to tools used in Section 6
 hklib_path = "C:\\Desktop\\Mods\\HKLibCLI.v0.1.2\\net7.0\\HKLib.CLI.exe"
 erbeh_injector_path = "C:\\Desktop\\Mods\\ERBEHInjector"
+
+param_test_location = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update"
+
+#Not the classiest method probably, but I keep the CSVs incorporated for when I can work out the XML handling.
+#This also is nicer than having to copy, paste, copy, paste... all the IDs into a list, just use the CSVs to handle the ID fetching.
+source_regulation_bin = "C:\\Desktop\\Mods\\Convergence\\ConvergenceER\\mod\\regulation.bin"
 
 def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, state_path_boolean, anibnd_path_boolean, sfx_path_boolean, beh_path_boolean):
     """
@@ -936,11 +865,11 @@ DMN_variants_to_update = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update R
 
 #This folder changes for each update, e.g. DMN_V3_EXP37.2\\Updated files, 37.2 is subject to change
 updated_files_folder = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\Updated files"
-#These remain constant, depend on updated_files_folder
+#These remain constant, depend on updated_files_folder location
 hks_update = os.path.join(updated_files_folder, "hks update")
 tae_update = os.path.join(updated_files_folder, "anibnd update\\a66.tae")
 sfx_update = os.path.join(updated_files_folder, "sfx update\\effects-to-be-added")
-
+param_update = os.path.join(updated_files_folder, "param update")
 #Magic button, only run if certain...
 
 ###updateMods(DMN_variants_to_update, True, True, True, True, True, True)
