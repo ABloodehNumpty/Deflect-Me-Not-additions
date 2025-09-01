@@ -285,6 +285,7 @@ def updateHKSfile(hks_file_path, move_file_path, function_file_path):
     Formatted to account for keeping tidy newlines, text files should not have any new lines above or below given text.
 
     """
+    print("Initalizing .hks update...")
     #Open move text file to read new moves being added in list format
     with open(move_file_path, "r") as m:
         new_moves = m.readlines()
@@ -323,6 +324,7 @@ def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
 
     Uses Witchybnd to unpack c0000.anibnd.dcx, replaces the a66.tae, then repacks.
     """
+    print("Initializing a66 tae update...")
     #Gather directories
     base_dir = os.path.dirname(anibnd_path)
     file_base = os.path.basename(anibnd_path).replace(".", "-") + "-wanibnd"
@@ -364,6 +366,11 @@ def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
 
 
 def replace_sfx_effects(base_path, effects_dir, witchybnd_path):
+    """
+    
+    """
+    print("Initalizing sfx update...")
+    #Initialize
     base_dir = os.path.dirname(base_path)
     file_base = os.path.basename(base_path).replace(".", "-") + "-wffxbnd"
     extracted_dir = os.path.join(base_dir, file_base)
@@ -431,6 +438,7 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
     4. Converts modified XML -> c0000.hkx
     5. Repacks behavior folder back to .dcx
     """
+    print("Initalizing Behavior update...")
     #Initialize, collect directories of appropriate areas
     base_dir = os.path.dirname(behbnd_path)
     folder_name = os.path.basename(behbnd_path).replace(".", "-")
@@ -519,7 +527,7 @@ param_test_location = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\par
 witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 update_source = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\source regulation bin\\regulation.bin"
 
-def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_update_location, witchybnd_path):
+def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path):
     """
     Updates the regulation.bin file by extracting XMLs and adding information from given CSVs.
 
@@ -543,17 +551,19 @@ def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_upda
     print("Initalizing...")
     #Establish main directories
     base_dir = os.path.dirname(regulation_bin_path)
-    source_dir = os.path.dirname(source_regulation_bin_path)
+    source_dir = os.path.join(param_update_location, "C:\\source regulation bin")
+    source_regulation_bin_path = os.path.join(source_dir, "C:\\regulation.bin")
     folder_name = os.path.basename(regulation_bin_path).replace(".", "-")
     source_folder_name = os.path.basename(source_regulation_bin_path).replace(".", "-")
     extracted_path = os.path.join(base_dir, folder_name)
     source_extracted_path = os.path.join(source_dir, source_folder_name)
+    param_csv_location = os.path.join(param_update_location, "C:\\param update")
     #Unpack regulation.bin for update, and the update source regulation.bin
     subprocess.run([witchybnd_path, "-u", regulation_bin_path], check=True, stdout=subprocess.DEVNULL)
     subprocess.run([witchybnd_path, "-u", source_regulation_bin_path], check=True, stdout=subprocess.DEVNULL)
     time.sleep(0.1)
     #Loop through given param updates
-    for filename in os.listdir(param_update_location):
+    for filename in os.listdir(param_csv_location):
         print(f"Unpacking... updating params using {filename}")
         #Get directories for specific params files/extracted files
         param_file = filename[:-3] + 'param'
@@ -712,7 +722,6 @@ state_path = "C:\\action\\statenameid.txt"
 anibnd_path = "C:\\chr\\c0000.anibnd.dcx" #Any edits on the file being replaced are done by DSAnimStudio by MeowMaritus
 sfx_path = "C:\\sfx\\sfxbnd_commoneffects_dlc02.ffxbnd.dcx"
 behavior_path = "C:\\chr\\c0000.behbnd.dcx" #Uses a python script someone else provided to the mod community, BEH injector
-#Files that are yet to be automated, not included in updateMods() till then
 regulation_path = "C:\\regulation.bin" #Regulation.bin is updated via Smithbox app
 
 #Tools needed for updates
@@ -723,13 +732,7 @@ witchy_bnd_path = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
 hklib_path = "C:\\Desktop\\Mods\\HKLibCLI.v0.1.2\\net7.0\\HKLib.CLI.exe"
 erbeh_injector_path = "C:\\Desktop\\Mods\\ERBEHInjector"
 
-param_test_location = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update"
-
-#Not the classiest method probably, but I keep the CSVs incorporated for when I can work out the XML handling.
-#This also is nicer than having to copy, paste, copy, paste... all the IDs into a list, just use the CSVs to handle the ID fetching.
-source_regulation_bin = "C:\\Desktop\\Mods\\Convergence\\ConvergenceER\\mod\\regulation.bin"
-
-def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, state_path_boolean, anibnd_path_boolean, sfx_path_boolean, beh_path_boolean):
+def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, state_path_boolean, anibnd_path_boolean, sfx_path_boolean, beh_path_boolean, regulation_path_boolean):
     """
     Main function that applies all updates user wants to apply.
 
@@ -802,6 +805,13 @@ def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, sta
             
             except FileNotFoundError:
                 print(f"ERROR: c0000.behbnd.dcx not found in {filename}, skipping behbnd update.")
+        #Check if updating regulation.bin file
+        if regulation_path_boolean == True:
+            variant_reg_path = os.path.join(variant_folder, regulation_path)
+            try:
+                updateRegBinfile(variant_reg_path, param_update, witchy_bnd_path)
+            except FileNotFoundError:
+                print(f"ERROR: regulation.bin not found in {filename}, skipping param update(s).")
 
         #State individual update complete!        
         print(f"Update complete for variant: {filename}")
@@ -867,7 +877,8 @@ updated_files_folder = "C:\\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Res
 hks_update = os.path.join(updated_files_folder, "hks update")
 tae_update = os.path.join(updated_files_folder, "anibnd update\\a66.tae")
 sfx_update = os.path.join(updated_files_folder, "sfx update\\effects-to-be-added")
-param_update = os.path.join(updated_files_folder, "param update")
+param_update = os.path.join(updated_files_folder, "param-update")
+
 #Magic button, only run if certain...
 
-###updateMods(DMN_variants_to_update, True, True, True, True, True, True)
+###updateMods(DMN_variants_to_update, True, True, True, True, True, True, True)
