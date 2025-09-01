@@ -329,7 +329,7 @@ def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
     extracted_dir = os.path.join(base_dir, file_base)
 
     #Unpack c0000.anibnd.dcx
-    subprocess.run([witchybnd_path, anibnd_path], check=True)
+    subprocess.run([witchybnd_path, anibnd_path], check=True, stdout=subprocess.DEVNULL)
 
     #Replace a66.tae
     tae_target_path = os.path.join(
@@ -338,7 +338,7 @@ def replace_a66_tae(anibnd_path, new_tae_path, witchybnd_path):
     shutil.copyfile(new_tae_path, tae_target_path)
 
     #Repack the folder
-    subprocess.run([witchybnd_path, extracted_dir], check=True)
+    subprocess.run([witchybnd_path, extracted_dir], check=True, stdout=subprocess.DEVNULL)
 
     #State that the update is complete.
     print(f"c0000.anibnd.dcx updated with new a66.tae")
@@ -369,7 +369,7 @@ def replace_sfx_effects(base_path, effects_dir, witchybnd_path):
     extracted_dir = os.path.join(base_dir, file_base)
 
     #Unpack
-    subprocess.run([witchybnd_path, base_path], check=True)
+    subprocess.run([witchybnd_path, base_path], check=True, stdout=subprocess.DEVNULL)
 
     #Copy all effects
     sfx_target_dir = os.path.join(
@@ -391,7 +391,7 @@ def replace_sfx_effects(base_path, effects_dir, witchybnd_path):
         print(f"Added: {filename}")
 
     #Repack
-    subprocess.run([witchybnd_path, extracted_dir], check=True)
+    subprocess.run([witchybnd_path, extracted_dir], check=True, stdout=subprocess.DEVNULL)
     print("sfxbnd_commoneffects_dlc02.ffxbnd.dcx update complete.")
     
     #Delete the unpacked folder, as it is now redundant clutter
@@ -440,7 +440,7 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
     xml_path = os.path.join(erbeh_injector_dir, "c0000.xml")
     #Part 1. Unpack with WitchyBND
     print("[1/6] Unpacking behavior file...")
-    subprocess.run([witchybnd_path, behbnd_path], check=True)
+    subprocess.run([witchybnd_path, behbnd_path], check=True, stdout=subprocess.DEVNULL)
     print(f"Checking if .hkx file exists at: {hkx_path}")
     print(f"File exists: {os.path.exists(hkx_path)}")
     #Part 2. Convert HKX to XML
@@ -495,7 +495,7 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
 
     # Step 5: Repack
     print("[5/6] Repacking behavior folder...")
-    subprocess.run([witchybnd_path, extracted_path], check=True)
+    subprocess.run([witchybnd_path, extracted_path], check=True, stdout=subprocess.DEVNULL)
     
     #Delete the unpacked folder, as it is now redundant clutter
     if os.path.exists(extracted_path):
@@ -517,9 +517,7 @@ def updateBEHfile(behbnd_path, witchybnd_path, hklib_path, erbeh_injector_dir, i
 reg_bin_test = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\regulation.bin"
 param_test_location = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\param update"
 witchybnd_test = "C:\\Desktop\\Mods\\WitchyBND\\WitchyBND.exe"
-#Not the classiest method probably, but I keep the CSVs incorporated for when I can work out the XML handling.
-#This also is nicer than having to copy, paste, copy, paste... all the IDs into a list, just use the CSVs to handle the ID fetching.
-update_source = "C:\\Desktop\\Mods\\Convergence\\ConvergenceER\\mod\\regulation.bin"
+update_source = "C:\\Desktop\\Test folder\\Code Testing\\param-update\\source regulation bin\\regulation.bin"
 
 def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_update_location, witchybnd_path):
     """
@@ -542,6 +540,7 @@ def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_upda
           Deleted the param.bak and not this one because the regulation.bin backup backs that up already.
     
     """
+    print("Initalizing...")
     #Establish main directories
     base_dir = os.path.dirname(regulation_bin_path)
     source_dir = os.path.dirname(source_regulation_bin_path)
@@ -550,11 +549,12 @@ def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_upda
     extracted_path = os.path.join(base_dir, folder_name)
     source_extracted_path = os.path.join(source_dir, source_folder_name)
     #Unpack regulation.bin for update, and the update source regulation.bin
-    subprocess.run([witchybnd_path, "-u", regulation_bin_path], check=True)
-    subprocess.run([witchybnd_path, "-u", source_regulation_bin_path], check=True)
+    subprocess.run([witchybnd_path, "-u", regulation_bin_path], check=True, stdout=subprocess.DEVNULL)
+    subprocess.run([witchybnd_path, "-u", source_regulation_bin_path], check=True, stdout=subprocess.DEVNULL)
     time.sleep(0.1)
     #Loop through given param updates
     for filename in os.listdir(param_update_location):
+        print(f"Unpacking... updating params using {filename}")
         #Get directories for specific params files/extracted files
         param_file = filename[:-3] + 'param'
         xml_file = param_file + '.xml' #It merely appends .xml when Witchybnd extracts it (.param.xml)
@@ -565,20 +565,19 @@ def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_upda
         xml_path = os.path.join(extracted_path, xml_file)
         backup_path = os.path.join(extracted_path, backup_file)
         #Source paths within the source extracted folder
-        source_param_path = os.path.join(source_extracted_path, filename)
+        source_param_path = os.path.join(source_extracted_path, param_file)
         source_xml_path = os.path.join(source_extracted_path, xml_file)
-
         #Unpack .param to .param.xml
-        subprocess.run([witchybnd_path, param_path], check=True)
+        subprocess.run([witchybnd_path, param_path], check=True, stdout=subprocess.DEVNULL)
+        time.sleep(0.1)
         #Unpack source .param to source .param.xml
-        subprocess.run([witchybnd_path, source_param_path], check=True)
+        subprocess.run([witchybnd_path, source_param_path], check=True, stdout=subprocess.DEVNULL)
         time.sleep(0.1)
         #Run update_param to add information from csv to the xml (Also sorting the xml)
         update_param(xml_path, source_xml_path, csv_path)
-        
         #Repack .param.xml to .param
         #subprocess.run([witchybnd_path, "-p", xml_path], check=True)
-        subprocess.run([witchybnd_path, xml_path], check=True)
+        subprocess.run([witchybnd_path, xml_path], check=True, stdout=subprocess.DEVNULL)
         #Short delay to ensure repacking before deletion
         time.sleep(0.1)
         #State file has been updated
@@ -605,11 +604,12 @@ def updateRegBinfile(regulation_bin_path, source_regulation_bin_path, param_upda
         else:
             print(f"File not found: {backup_file}")
         
+        print("----------------------------------------------")
         
     #State all files have been updated
     print("All param updates complete. Repacking...")
     #Repack regulation-bin
-    subprocess.run([witchybnd_path, "-p", extracted_path], check=True)
+    subprocess.run([witchybnd_path, "-p", extracted_path], check=True, stdout=subprocess.DEVNULL)
     print("regulation.bin update complete.")
 
     #Delete source regulation-bin, as is now clutter
@@ -647,7 +647,6 @@ def update_param(xml_path, source_xml_path, csv_path):
     for entry in csv_contents[1:]:
         entry_list = entry.split(',')
         id_list.append(entry_list[id_index])
-    #print(id_list)
 
     #Open source xml file and read contents
     with open(source_xml_path, "r", encoding="utf-8") as source_xml:
@@ -693,12 +692,11 @@ def update_param(xml_path, source_xml_path, csv_path):
     sorted_rows = sorted(row_lines, key=get_id)
 
     #Rebuild full list of xml_content with now new and sorted IDs
-    sorted_xml_content = [xml_content[:start_index+1]] + sorted_rows + [xml_content[end_index:]]
-
+    sorted_xml_content = xml_content[:start_index+1] + sorted_rows + xml_content[end_index:]
     with open(xml_path, "w", encoding="utf-8") as write_xml:
         write_xml.writelines(sorted_xml_content)
-        
-#updateRegBinfile(reg_bin_test, param_test_location, witchybnd_test)
+
+updateRegBinfile(reg_bin_test, update_source, param_test_location, witchybnd_test)
 
 #############
 # Section 8 #
