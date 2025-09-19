@@ -15,6 +15,7 @@ import os
 import csv
 import xml.etree.ElementTree as ET
 import time
+import re
 
 
 #############
@@ -218,6 +219,34 @@ def updateState(file_path, names):
 # #                              c0000.hks update functions                                               #  #
 ##############################################################################################################
 
+def updateSuperFindAttackFunction(new_func, hks_file_path):
+    """
+    Function that updates c0000.hks Combo_FindAttackInComboTable function to include Super Combos feature
+    
+    """
+    with open(hks_file_path, "r") as f:
+        hks_content = f.read()
+    
+    pattern = re.compile(
+        r"(function\s+Combo_FindAttackInComboTable[\s\S]*?)(?=function\s+Combo_OverrideAttack)",
+        re.MULTILINE
+    )
+    
+    replacement = new_func.rstrip() + "\n\n"
+    updated_content, count = pattern.subn(replacement, hks_content)
+
+    if count == 0:
+        raise ValueError("Function Combo_FindAttackInComboTable not found in file or Combo_OverrideAttack anchor missing.")
+    
+    elif count > 1: 
+        raise ValueError("Function Combo_FindAttackInComboTable appears multiple times, careful with your copy pastes!")
+
+    # Write back to file
+    with open(hks_file_path, "w") as w:
+        w.write(updated_content)
+
+    print(f"Replaced Combo_FindAttackInComboTable in {hks_file_path}")
+
 def functionUpdate(new_functions, hks_file_path):
     """
     Function that updates c0000.hks with any new functions for player moves.
@@ -302,11 +331,13 @@ def updateHKSfile(hks_file_path, move_file_path, function_file_path):
 
 
 #hks_file_path = "C:\\Users\\james\Desktop\\Mods\\DeflectMeNot\\DMN V3 EXP37 Update Resources\\DMN_V3_EXP37.2\\To be added\DMN-Vanilla\\action\\script\\c0000.hks"
-#hks_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\c0000.hks"
+#hks_test_path = "C:\\Desktop\\Test folder\\Code Testing\\c0000.hks"
 #function_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\newfunctions.txt"
 #move_test_path = "C:\\Users\\james\Desktop\\Test folder\\Code Testing\\newmoves.txt"
+#super_function_test = REMOVED BECAUSE BIG
 
 #updateHKSfile(hks_test_path, move_test_path, function_test_path)
+#updateSuperFindAttackFunction(super_function_test, hks_test_path)
 
 #############
 # Section 4 #
@@ -551,13 +582,13 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
     print("Initalizing...")
     #Establish main directories
     base_dir = os.path.dirname(regulation_bin_path)
-    source_dir = os.path.join(param_update_location, "C:\\source regulation bin")
-    source_regulation_bin_path = os.path.join(source_dir, "C:\\regulation.bin")
+    source_dir = os.path.join(param_update_location, "source regulation bin")
+    source_regulation_bin_path = os.path.join(source_dir, "regulation.bin")
     folder_name = os.path.basename(regulation_bin_path).replace(".", "-")
     source_folder_name = os.path.basename(source_regulation_bin_path).replace(".", "-")
     extracted_path = os.path.join(base_dir, folder_name)
     source_extracted_path = os.path.join(source_dir, source_folder_name)
-    param_csv_location = os.path.join(param_update_location, "C:\\param update")
+    param_csv_location = os.path.join(param_update_location, "param update")
     #Unpack regulation.bin for update, and the update source regulation.bin
     subprocess.run([witchybnd_path, "-u", regulation_bin_path], check=True, stdout=subprocess.DEVNULL)
     subprocess.run([witchybnd_path, "-u", source_regulation_bin_path], check=True, stdout=subprocess.DEVNULL)
@@ -570,7 +601,7 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
         xml_file = param_file + '.xml' #It merely appends .xml when Witchybnd extracts it (.param.xml)
         backup_file = param_file + '.bak'
         #File paths within the extracted folder
-        csv_path = os.path.join(param_update_location, filename)
+        csv_path = os.path.join(param_csv_location, filename)
         param_path = os.path.join(extracted_path, param_file)
         xml_path = os.path.join(extracted_path, xml_file)
         backup_path = os.path.join(extracted_path, backup_file)
@@ -586,8 +617,8 @@ def updateRegBinfile(regulation_bin_path, param_update_location, witchybnd_path)
         #Run update_param to add information from csv to the xml (Also sorting the xml)
         update_param(xml_path, source_xml_path, csv_path)
         #Repack .param.xml to .param
-        #subprocess.run([witchybnd_path, "-p", xml_path], check=True)
-        subprocess.run([witchybnd_path, xml_path], check=True, stdout=subprocess.DEVNULL)
+        subprocess.run([witchybnd_path, "-p", xml_path], check=True, stdout=subprocess.DEVNULL)
+        #subprocess.run([witchybnd_path, xml_path], check=True, stdout=subprocess.DEVNULL)
         #Short delay to ensure repacking before deletion
         time.sleep(0.1)
         #State file has been updated
@@ -706,7 +737,7 @@ def update_param(xml_path, source_xml_path, csv_path):
     with open(xml_path, "w", encoding="utf-8") as write_xml:
         write_xml.writelines(sorted_xml_content)
 
-updateRegBinfile(reg_bin_test, update_source, param_test_location, witchybnd_test)
+#updateRegBinfile(reg_bin_test, update_source, param_test_location, witchybnd_test)
 
 #############
 # Section 8 #
@@ -714,15 +745,14 @@ updateRegBinfile(reg_bin_test, update_source, param_test_location, witchybnd_tes
 # #                                           Main function                                                # #
 ##############################################################################################################
 
-
 #Paths of files within each DMN folder, this remains constant, as its the form that DMN and Elden Ring mod folders in general take
-hks_path = "C:\\action\\script\\c0000.hks"
-event_path = "C:\\action\\eventnameid.txt"
-state_path = "C:\\action\\statenameid.txt"
-anibnd_path = "C:\\chr\\c0000.anibnd.dcx" #Any edits on the file being replaced are done by DSAnimStudio by MeowMaritus
-sfx_path = "C:\\sfx\\sfxbnd_commoneffects_dlc02.ffxbnd.dcx"
-behavior_path = "C:\\chr\\c0000.behbnd.dcx" #Uses a python script someone else provided to the mod community, BEH injector
-regulation_path = "C:\\regulation.bin" #Regulation.bin is updated via Smithbox app
+hks_path = "action\\script\\c0000.hks"
+event_path = "action\\eventnameid.txt"
+state_path = "action\\statenameid.txt"
+anibnd_path = "chr\\c0000.anibnd.dcx" #Any edits on the file being replaced are done by DSAnimStudio by MeowMaritus
+sfx_path = "sfx\\sfxbnd_commoneffects_dlc02.ffxbnd.dcx"
+behavior_path = "chr\\c0000.behbnd.dcx" #Uses a python script someone else provided to the mod community, BEH injector
+regulation_path = "regulation.bin" #Regulation.bin is updated via Smithbox app
 
 #Tools needed for updates
 
@@ -745,10 +775,10 @@ def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, sta
     if DMN_variants_to_update == None:
         print("Path isn't specified. Add a path to the DMN variants folder for your update.")
         return
-    if (hks_path_boolean == None) or (event_path_boolean == None) or (state_path_boolean == None) or (anibnd_path_boolean == None) or (sfx_path_boolean == None):
+    if (hks_path_boolean == None) or (event_path_boolean == None) or (state_path_boolean == None) or (anibnd_path_boolean == None) or (sfx_path_boolean == None) or (beh_path_boolean == None) or (regulation_path_boolean) == None:
         print("Ensure you are stating booleans true/false for each potential update, no accidentals allowed!")
         return
-    if (hks_path_boolean == False) and (event_path_boolean == False) and (state_path_boolean == False) and (anibnd_path_boolean == False) and (sfx_path_boolean == False):
+    if (hks_path_boolean == (False, False)) and (event_path_boolean == False) and (state_path_boolean == False) and (anibnd_path_boolean == False) and (sfx_path_boolean == False) and (beh_path_boolean == False) and (regulation_path_boolean) == False:
         print("You have successfully updated nothing, try changing something to True.")
         return
     #Loop through folder with all variants/merges of DMN
@@ -757,12 +787,19 @@ def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, sta
         #Create path to the DMN variants folder
         variant_folder = os.path.join(DMN_variants_to_update, filename)
         #Check if updating c0000.hks
-        if hks_path_boolean == True:
+        if hks_path_boolean[0] == True:
             variant_hks_path = os.path.join(variant_folder, hks_path)
             new_moves = os.path.join(hks_update, "newmoves.txt")
             new_functions = os.path.join(hks_update, "newfunctions.txt")
             try:
                 updateHKSfile(variant_hks_path, new_moves, new_functions)
+            except FileNotFoundError:
+                print(f"ERROR: c0000.hks not found in {filename}, skipping HKS update.")
+        
+        if hks_path_boolean[1] == True:
+            variant_hks_path = os.path.join(variant_folder, hks_path)
+            try:
+                updateSuperFindAttackFunction(super_function, variant_hks_path)
             except FileNotFoundError:
                 print(f"ERROR: c0000.hks not found in {filename}, skipping HKS update.")
         
@@ -805,6 +842,7 @@ def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, sta
             
             except FileNotFoundError:
                 print(f"ERROR: c0000.behbnd.dcx not found in {filename}, skipping behbnd update.")
+        
         #Check if updating regulation.bin file
         if regulation_path_boolean == True:
             variant_reg_path = os.path.join(variant_folder, regulation_path)
@@ -815,6 +853,14 @@ def updateMods(DMN_variants_to_update, hks_path_boolean, event_path_boolean, sta
 
         #State individual update complete!        
         print(f"Update complete for variant: {filename}")
+        #Testing, press Y to continue so can see where script isnt working
+        while True:
+            user_input = input("Type 'Y' to continue: ").strip().upper()
+            if user_input == 'Y':
+                break
+            else:
+                print("Invalid input. Please type 'Y'.")
+
     #State that all updates are complete!
     print("All updates complete.")
             
@@ -863,6 +909,102 @@ STORED_IDS = ['911435', '911436', '911437', '911438', '911439', '911440', '91144
                    '912001', '912002', '912003', '912004', '912005', '912006', '912007', '912008', '912009', '912010', '912011', '912012', '912013', '912014', '912015', '912016', '912017', '912018', '912019', '912020', '912021', '912022', '912023', '912024', '912025', '912026', '912027', '912028', '912029', '912030', '912031'
                   ]
 
+super_function = """function Combo_FindAttackInComboTable(r1, r2, b1, b2)
+	local WieldingTable = Combo_GetWieldingTable()
+	if WieldingTable == nil then
+		return nil
+	end
+
+	local IsNormal = FALSE
+	local ComboTable = nil
+	if r1 == RIGHT_DASH1 or r2 == RIGHT_DASH2 or b1 == BOTH_DASH1 or b2 == BOTH_DASH2 then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_DASH_COMBO) == "table" and 0 < #WieldingTable.SUPER_DASH_COMBO then
+			ComboTable = WieldingTable.SUPER_DASH_COMBO
+		else
+			ComboTable = WieldingTable.DASH_COMBO
+		end
+	elseif r1 == RIGHT_ROLL or b1 == BOTH_ROLL then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_ROLL_COMBO) == "table" and 0 < #WieldingTable.SUPER_ROLL_COMBO then
+			ComboTable = WieldingTable.SUPER_ROLL_COMBO
+		else
+			ComboTable = WieldingTable.ROLL_COMBO
+		end
+	elseif r1 == RIGHT_STEP or b1 == BOTH_STEP then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_BACKSTEP_COMBO) == "table" and 0 < #WieldingTable.SUPER_BACKSTEP_COMBO then
+			ComboTable = WieldingTable.SUPER_BACKSTEP_COMBO
+		else
+			ComboTable = WieldingTable.BACKSTEP_COMBO
+		end
+	elseif r1 == RIGHT_STEALTH or b1 == BOTH_STEALTH then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_STEALTH_COMBO) == "table" and 0 < #WieldingTable.SUPER_STEALTH_COMBO then
+			ComboTable = WieldingTable.SUPER_STEALTH_COMBO
+		else
+			ComboTable = WieldingTable.STEALTH_COMBO
+		end
+	elseif Combo_IsGuardStance() == TRUE then
+		Combo_SetGuardStance(FALSE)
+		Action_SetSpecialRequest(TRUE)
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_GUARD_STANCE) == "table" and 0 < #WieldingTable.SUPER_GUARD_STANCE then
+			ComboTable = WieldingTable.SUPER_GUARD_STANCE
+		else
+			ComboTable = WieldingTable.GUARD_STANCE
+		end
+		if GV_Combo.Custom == GC_MODES.MOVESETS_DEFAULT or ComboTable == nil or #ComboTable == 0 then
+			ComboTable = GC_COMBO.GUARD_STANCE1
+		end
+	elseif Action_IsGuardCounterPossible() == TRUE then
+		Action_EndGuardCounterStatus()
+		ComboTable = WieldingTable.GUARD_COUNTER
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_GUARD_COUNTER) == "table" and 0 < #WieldingTable.SUPER_GUARD_COUNTER then
+			ComboTable = WieldingTable.SUPER_GUARD_COUNTER
+		else
+			ComboTable = WieldingTable.GUARD_COUNTER
+		end
+		if ComboTable == nil or #ComboTable == 0 then
+			if c_Style == HAND_RIGHT_BOTH or c_Style == HAND_LEFT_BOTH then
+				ComboTable = GC_COMBO.GUARD_COUNTER2
+			else
+				ComboTable = GC_COMBO.GUARD_COUNTER1
+			end
+		end
+	else
+		IsNormal = TRUE
+		if 0 < #Combo_GetComboTable() then
+			ComboTable = Combo_GetComboTable()
+		else
+			if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_NORMAL_COMBO) == "table" and 0 < #WieldingTable.SUPER_NORMAL_COMBO then
+				ComboTable = WieldingTable.SUPER_NORMAL_COMBO
+			else
+				ComboTable = WieldingTable.NORMAL_COMBO
+			end
+		end
+	end
+
+	if ComboTable == nil or #ComboTable == 0 then
+		ComboTable = {}
+	else
+		if Combo_GetComboTable() ~= ComboTable then
+			Combo_ShiftComboActions()
+			Combo_SwitchComboTable(ComboTable)
+		end
+	end
+
+	local AttackIndex = 0
+	local CurrentActions = Combo_GetComboActions()
+	local NextAttack = Combo_FindNextAttack(ComboTable)
+	if NextAttack == nil and IsNormal == FALSE then
+		Combo_ShiftComboActions()
+		NextAttack = Combo_FindNextAttack(ComboTable)
+	end
+
+	if NextAttack == nil and WieldingTable.NORMAL_COMBO ~= nil and (1 < #CurrentActions or Action_IsGuardCounterPossible() == TRUE) then
+		Combo_ShiftComboActions()
+		Combo_SwitchComboTable(WieldingTable.NORMAL_COMBO)
+		NextAttack = Combo_FindNextAttack(WieldingTable.NORMAL_COMBO)
+	end
+
+	return NextAttack
+end"""
 
 #Path of DMN variants folder, 
 #These will be manually added as mod author adds more merges
@@ -881,4 +1023,5 @@ param_update = os.path.join(updated_files_folder, "param-update")
 
 #Magic button, only run if certain...
 
-###updateMods(DMN_variants_to_update, True, True, True, True, True, True, True)
+#updateMods(DMN_variants_to_update, (False, True), False, False, False, False, False, False)
+updateMods(DMN_variants_to_update, (True, True), True, True, True, True, True, True)

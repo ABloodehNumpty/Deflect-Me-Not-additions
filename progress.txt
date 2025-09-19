@@ -2,7 +2,7 @@ Sections left to work on:
 
 SUPER SEKIRO (Complete)
 
-SUPER SEKIRO SKILLS
+SUPER SEKIRO SKILLS (Complete except for DragonFlash1)
 - Still need to do: DragonFlash1
 - Go over melee moves again
 - Go over unsheathing moves again
@@ -21,8 +21,9 @@ SUPER OWL (Complete)
 
 SUPER LONE SHADOW (Complete)
 
-SUPER ISSHIN
+SUPER ISSHIN (Complete)
 Unsheathing attacks - Isshin6, 7, 11, 18, 20, 23, 29
+
 
 
 Future Ideas/Projects:
