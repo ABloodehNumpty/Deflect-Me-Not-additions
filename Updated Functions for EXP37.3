@@ -1,0 +1,327 @@
+function Combo_FindNextAttack(ComboTable)
+	local AttackIndex = 0
+	local CurrentActions = Combo_GetComboActions()
+    omissions = 0
+	for i = 1, #ComboTable, 3 do
+		local ComboActions = ComboTable[i - omissions]
+		local ComboAttacks = ComboTable[i + 1 - omissions]
+        local ComboElements = ComboTable[i + 2 - omissions]
+		if ComboActions == nil or ComboAttacks == nil or #ComboActions ~= #ComboAttacks or (ComboElements != nil and #ComboElements ~= #ComboActions) then
+			AttackIndex = 0
+			break
+		end
+        
+		for Index = 1, #CurrentActions, 1 do
+			if CurrentActions[Index] == ComboActions[Index] then
+				AttackIndex = Index
+			else
+				AttackIndex = 0
+				break
+			end
+		end
+
+		if 1 <= AttackIndex then
+            if ComboElements[AttackIndex] == nil or ComboElements[AttackIndex] == R1 or ComboElements[AttackIndex] == R2 then
+                omissions += 1
+			    return ComboAttacks[AttackIndex], nil
+            else
+                return ComboAttacks[AttackIndex], ComboElements[AttackIndex]
+            end
+		end
+	end
+
+	return nil
+end
+
+
+--ComboFindAttackInComboTable updated
+function Combo_FindAttackInComboTable(r1, r2, b1, b2)
+	local WieldingTable = Combo_GetWieldingTable()
+	if WieldingTable == nil then
+		return nil
+	end
+
+	local IsNormal = FALSE
+	local ComboTable = nil
+	if r1 == RIGHT_DASH1 or r2 == RIGHT_DASH2 or b1 == BOTH_DASH1 or b2 == BOTH_DASH2 then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_DASH_COMBO) == "table" and 0 < #WieldingTable.SUPER_DASH_COMBO then
+			ComboTable = WieldingTable.SUPER_DASH_COMBO
+		else
+			ComboTable = WieldingTable.DASH_COMBO
+		end
+	elseif r1 == RIGHT_ROLL or b1 == BOTH_ROLL then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_ROLL_COMBO) == "table" and 0 < #WieldingTable.SUPER_ROLL_COMBO then
+			ComboTable = WieldingTable.SUPER_ROLL_COMBO
+		else
+			ComboTable = WieldingTable.ROLL_COMBO
+		end
+	elseif r1 == RIGHT_STEP or b1 == BOTH_STEP then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_BACKSTEP_COMBO) == "table" and 0 < #WieldingTable.SUPER_BACKSTEP_COMBO then
+			ComboTable = WieldingTable.SUPER_BACKSTEP_COMBO
+		else
+			ComboTable = WieldingTable.BACKSTEP_COMBO
+		end
+	elseif r1 == RIGHT_STEALTH or b1 == BOTH_STEALTH then
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_STEALTH_COMBO) == "table" and 0 < #WieldingTable.SUPER_STEALTH_COMBO then
+			ComboTable = WieldingTable.SUPER_STEALTH_COMBO
+		else
+			ComboTable = WieldingTable.STEALTH_COMBO
+		end
+	elseif Combo_IsGuardStance() == TRUE then
+		Combo_SetGuardStance(FALSE)
+		Action_SetSpecialRequest(TRUE)
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_GUARD_STANCE) == "table" and 0 < #WieldingTable.SUPER_GUARD_STANCE then
+			ComboTable = WieldingTable.SUPER_GUARD_STANCE
+		else
+			ComboTable = WieldingTable.GUARD_STANCE
+		end
+		if GV_Combo.Custom == GC_MODES.MOVESETS_DEFAULT or ComboTable == nil or #ComboTable == 0 then
+			ComboTable = GC_COMBO.GUARD_STANCE1
+		end
+	elseif Action_IsGuardCounterPossible() == TRUE then
+		Action_EndGuardCounterStatus()
+		ComboTable = WieldingTable.GUARD_COUNTER
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_GUARD_COUNTER) == "table" and 0 < #WieldingTable.SUPER_GUARD_COUNTER then
+			ComboTable = WieldingTable.SUPER_GUARD_COUNTER
+		else
+			ComboTable = WieldingTable.GUARD_COUNTER
+		end
+		if ComboTable == nil or #ComboTable == 0 then
+			if c_Style == HAND_RIGHT_BOTH or c_Style == HAND_LEFT_BOTH then
+				ComboTable = GC_COMBO.GUARD_COUNTER2
+			else
+				ComboTable = GC_COMBO.GUARD_COUNTER1
+			end
+		end
+	else
+		IsNormal = TRUE
+		if 0 < #Combo_GetComboTable() then
+			ComboTable = Combo_GetComboTable()
+		else
+			if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_NORMAL_COMBO) == "table" and 0 < #WieldingTable.SUPER_NORMAL_COMBO then
+				ComboTable = WieldingTable.SUPER_NORMAL_COMBO
+			else
+				ComboTable = WieldingTable.NORMAL_COMBO
+			end
+		end
+	end
+
+	if ComboTable == nil or #ComboTable == 0 then
+		ComboTable = {}
+	else
+		if Combo_GetComboTable() ~= ComboTable then
+			Combo_ShiftComboActions()
+			Combo_SwitchComboTable(ComboTable)
+		end
+	end
+
+	local AttackIndex = 0
+	local CurrentActions = Combo_GetComboActions()
+	local NextAttack, NextElement = Combo_FindNextAttack(ComboTable)
+	if NextAttack == nil and IsNormal == FALSE then
+		Combo_ShiftComboActions()
+		NextAttack, NextElement = Combo_FindNextAttack(ComboTable)
+	end
+
+	if NextAttack == nil and WieldingTable.NORMAL_COMBO ~= nil and (1 < #CurrentActions or Action_IsGuardCounterPossible() == TRUE) then
+		Combo_ShiftComboActions()
+		if Accumulate_IsReady() == TRUE and type(WieldingTable.SUPER_NORMAL_COMBO) == "table" and 0 < #WieldingTable.SUPER_NORMAL_COMBO then
+		    Combo_SwitchComboTable(WieldingTable.SUPER_NORMAL_COMBO)
+			NextAttack, NextElement = Combo_FindNextAttack(WieldingTable.SUPER_NORMAL_COMBO)
+		else
+			Combo_SwitchComboTable(WieldingTable.NORMAL_COMBO)
+			NextAttack, NextElement = Combo_FindNextAttack(WieldingTable.NORMAL_COMBO)
+		end
+	end
+
+	return NextAttack, NextElement
+end
+
+-- Combo_OverrideAttack updated
+function Combo_OverrideAttack(Request, r1, r2, b1, b2)
+	if Action_IsCritical() == TRUE then
+		return FALSE, nil, Request, r1, r2, b1, b2
+	end
+
+	if Combo_IsDelay() == FALSE then
+		Combo_QueueComboAction()
+	end
+
+	if DMN_ComboCooldown_Multiplier <= 0 then
+		if Request == ATTACK_REQUEST_INVALID and Action_IsAnimationCancel() == FALSE then
+			return FALSE, nil, Request, r1, r2, b1, b2
+		end
+	end
+
+	if Combo_IsCooldown() == TRUE or Combo_GetLastComboAction() == nil or (Cancel_IsCooldown() == TRUE and Action_IsAnimationCancel() == FALSE) then
+		return FALSE, nil, ATTACK_REQUEST_INVALID, r1, r2, b1, b2
+	end
+
+	if Deflect_IsHeavy() == TRUE then
+		Deflect_SetHeavy(FALSE)
+		Combo_ResetComboActions()
+		return FALSE, nil, ATTACK_REQUEST_INVALID, r1, r2, b1, b2
+	end
+
+	local NextAttack = nil
+    local NextElement = nil
+	if Request_IsButton(GC_BUTTONS.L1) == TRUE then
+		if Request_IsPressed(GC_BUTTONS.R1) == TRUE and (DMN_GuardStance_Mode == GC_MODES.GUARDSTANCE_R1 or DMN_GuardStance_Mode == GC_MODES.GUARDSTANCE_ALL) then
+			Combo_SetGuardStanceAttack(R1)
+			NextAttack = "W_DMN_GuardStance1_Start"
+		elseif Request_IsPressed(GC_BUTTONS.R2) == TRUE and (DMN_GuardStance_Mode == GC_MODES.GUARDSTANCE_R2 or DMN_GuardStance_Mode == GC_MODES.GUARDSTANCE_ALL) then
+			Combo_SetGuardStanceAttack(R2)
+			NextAttack = "W_DMN_GuardStance1_Start"
+		end
+	end
+
+	if NextAttack == nil then
+		NextAttack, NextElement = Combo_FindAttackInComboTable(r1, r2, b1, b2)
+	else
+		Combo_SetGuardStance(TRUE)
+		Action_SetSpecialRequest(TRUE)
+	end
+
+	if NextAttack == nil and Request ~= ATTACK_REQUEST_INVALID then
+		Combo_ResetComboActions()
+		return FALSE, nil, Request, r1, r2, b1, b2
+	end
+
+	if c_Style == HAND_RIGHT_BOTH or c_Style == HAND_LEFT_BOTH then
+		if Request_IsPressed(GC_BUTTONS.R1) == TRUE or Combo_GetLastComboAction() == R1 then
+			Request = ATTACK_REQUEST_BOTH_LIGHT
+			if NextAttack ~= nil then
+				b1 = NextAttack
+			end
+		elseif Request_IsPressed(GC_BUTTONS.R2) == TRUE or Combo_GetLastComboAction() == R2 then
+			Request = ATTACK_REQUEST_BOTH_HEAVY
+			if NextAttack ~= nil then
+				b2 = NextAttack
+			else
+				if Action_IsGuardCounterPossible() == TRUE then
+					b2 = BOTH_COUNTER
+				end
+			end
+		end
+	else
+		if Request_IsPressed(GC_BUTTONS.R1) == TRUE or Combo_GetLastComboAction() == R1 then
+			Request = ATTACK_REQUEST_RIGHT_LIGHT
+			if NextAttack ~= nil then
+				r1 = NextAttack
+			end
+		elseif Request_IsPressed(GC_BUTTONS.R2) == TRUE or Combo_GetLastComboAction() == R2 then
+			Request = ATTACK_REQUEST_RIGHT_HEAVY
+			if NextAttack ~= nil then
+				r2 = NextAttack
+			else
+				if Action_IsGuardCounterPossible() == TRUE then
+					r2 = RIGHT_COUNTER
+				end
+			end
+		end
+	end
+
+	if NextAttack ~= nil then
+		Combo_IncreaseComboIndex()
+	else
+		Combo_ResetComboActions()
+	end
+
+	Combo_AddDelay()
+	if 0 < DMN_ComboCooldown_Multiplier then
+		Combo_AddCooldown()
+	end
+
+	return TRUE, NextAttack, NextElement, Request, r1, r2, b1, b2
+end
+
+
+	-- CUSTOM: Begin.
+	local Result, IsGuardPossible, IsSpecialAttack, NextAttack, NextElement, R1, R2, B1, B2 = FALSE, FALSE, FALSE, nil, nil, nil, nil, nil, nil
+	if Game_IsPlayer() == TRUE then
+		if Gameplay_AirRetreat_Update() == TRUE then
+			return FALSE
+		end
+
+		Gameplay_GuardStance_Update()
+
+		Action_CancelAnimation()
+
+		if Combo_IsOverrideAttack() == TRUE and Combo_IsOverrideRequest(request) == TRUE and artsr1 == FALSE and artsr2 == FALSE then
+			Result, NextAttack, NextElement, request, R1, R2, B1, B2 = Combo_OverrideAttack(request, r1, r2, b1, b2)
+		end
+
+		if Action_IsSpecialRequest() == TRUE or request ~= ATTACK_REQUEST_INVALID then
+			IsGuardPossible = Action_IsGuardPossible()
+			Deflect_SetInterruptAttack(TRUE)
+			if System_IsExistInTable(c_SwordArtsID, DMN_DeflectAoWs_Table) == TRUE and ((IsStanceArts(c_SwordArtsID) == TRUE and (artsr1 == TRUE or artsr2 == TRUE)) or (IsStanceArts(c_SwordArtsID) == FALSE and Request_IsPressed(GC_BUTTONS.L2) == TRUE)) then
+				IsSpecialAttack = TRUE
+				Deflect_SetInterruptAttack(FALSE)
+			end
+
+			if Action_IsSpecialRequest() == TRUE or Deflect_IsCounterPossible() == TRUE or IsSpecialAttack == TRUE then
+				Deflect_Activate(TRUE)
+			end
+
+			if AI_IsEnemyAlert() == TRUE then
+				if IsGuardPossible == FALSE or Request_IsPressed(GC_BUTTONS.L1) == FALSE then
+					AI_TriggerEnemyAlert()
+				end
+			end
+
+			Action_SetSpecialRequest(FALSE)
+		end
+	end
+	-- CUSTOM: End.
+
+--Part where it actually applies effect?
+
+    -- CUSTOM: Begin.
+			if Game_IsPlayer() == TRUE then
+				if NextAttack ~= nil then
+                    -- Numpty CUSTOM: Begin.
+                    local elementID = DMNSpecialEffects[NextElement]
+                    if NextElement ~= nil and elementID ~= nil then
+                        Effect_AddByID(elementID)
+                    end
+                    -- Numpty CUSTOM: End.
+
+					ExecEventAllBody(NextAttack)
+
+                    -- Numpty CUSTOM: Begin.
+                    if NextElement ~= nil and elementID ~= nil then
+                        if Effect_IsActive(elementID) == TRUE then
+                            Effect_RemoveByID(elementID)
+                        end
+                    end
+                    -- Numpty CUSTOM: End.
+					if is_find_atk == TRUE then
+						SetInterruptType(INTERRUPT_FINDATTACK)
+					end
+
+					if style == HAND_RIGHT_BOTH then
+						atk_hand = HAND_RIGHT
+					elseif style == HAND_LEFT_BOTH then
+						atk_hand = HAND_LEFT
+					end
+
+					SetAttackHand(atk_hand)
+					SetGuardHand(guard_hand)
+
+					if is_Dual == TRUE then
+						act(SetThrowPossibilityState_Defender, 400000)
+					end
+
+					act(SetNpcAIAttackRequestIDAfterBlend, env(GetNpcAIAttackRequestID))
+					SetAIActionState()
+
+					return TRUE
+				end
+			end
+			-- CUSTOM: End.
+
+          
+-- Effect function I added
+function Effect_RemoveByID(ID)
+    act(ClearSpEffect, ID)
+end

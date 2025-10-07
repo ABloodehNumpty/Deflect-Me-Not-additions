@@ -28,13 +28,14 @@ Unsheathing attacks - Isshin6, 7, 11, 18, 20, 23, 29
 
 Future Ideas/Projects:
 
-37.3: Adding a lite (and universal) version of super moves where it just applies a basic special effect (can use more than fire) during super mode. This would apply to more than just specific edited moves and would be overall a more refined method.
+37.3: Adding a lite (and universal) version of super moves where it just applies a basic special effect (can use more than fire) during super mode. This would apply to more than just specific edited moves and would be overall a more refined method. (Scrapped for now, can achieve the same effect by just allowing players to assign elements to their attacks.)
 
 Later (whether its 37.4/.5/onwards) can try designing a way of assigning the effects to certain moves, to allow for effect combos. Bare minimum, make it so combos starting with R1 have a different element to combos starting with R2. Lots of ways I could design this. The PERFECT way to do this would likely be something like:
 {R1, R1, R1},
 {Move1, Move2, Move3},
 {Fire, Frost, Lightning}
 
-Makes a combo where Move1 is fire, Move2 is frost, and move3 is lightning, allowing a mix-and-match with elements.
+Makes a combo where Move1 is fire, Move2 is frost, and move3 is lightning, allowing a mix-and-match with elements. 
+(NOTE: This is underway! Have made some function changes for c0000.hks that allow the new structure. Just need to hunt for all the correct effect IDs for weapon buffs, and make a dictionary of them for users. Dictionary logic has been put in the code changes already, too)
 
 37.4: Mist Raven combo chainer effect. Somehow (don't know yet) copy and edit the Great Shinobi Owl #15 move to take the teleporting part of the move without the attack. Turn this into a move on its own, and use it as a combo cancel (either make it restart combo or continue the previous combo, or have its own combo system). The idea being to use it as a stylish dodge or distance closer for that true Sekiro customizable experience.
