@@ -3,7 +3,7 @@ This is a repository of changes/updates I personally incorporated for an Elden R
 https://www.nexusmods.com/eldenring/mods/4138?tab=files Author: Aiketuido
 
 
-Super Combos function lua file is a function change that allows for dedicated combos during DMN's 'super mode'.
+Super Combos function lua file is a function change that allows for dedicated combos during DMN's 'super mode'. Updated Combo_FindNextAttack is an updated function for EXP 37.3 changes, more function updates required still. 
 
 DMNscript.py is a WIP python script that allows me to automatically apply updates to DMN for my updating needs.
 
